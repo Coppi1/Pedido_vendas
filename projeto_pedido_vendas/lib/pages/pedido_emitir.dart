@@ -36,7 +36,7 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
 
   final ItensDAO _itensDAO = ItensDAO();
   ItensDTO? _itensDTO;
-  List<ItensDTO> _itens_lista = [];
+  final List<ItensDTO> _itens_lista = [];
 
   @override
   void initState() {

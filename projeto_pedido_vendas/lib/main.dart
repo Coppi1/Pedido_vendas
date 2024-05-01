@@ -6,16 +6,16 @@ import 'package:projeto_pedido_vendas/util/initialize_database.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDatabase();
-  runApp(MainApp());
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  MainApp({super.key});
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: PedidoEmitirPageTeste(),
+    return const MaterialApp(
+      home:   PedidoEmitirPageTeste(),
     );
   }
 }
