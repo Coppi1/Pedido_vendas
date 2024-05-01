@@ -53,9 +53,9 @@ Future<void> initializeDatabase() async {
   //   'nome': 'João Vendedor',
   // });
 
-  // await db.insert('vendedor', {
-  //   'nome': 'Maria Vendedora',
-  // });
+  await db.insert('vendedor', {
+    'nome': 'Vendedo xyz',
+  });
 
   // await db.insert('produto', {
   //   'marca': 'Marca1',
