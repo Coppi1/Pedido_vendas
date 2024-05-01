@@ -1,8 +1,10 @@
+import 'dart:convert';
+import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 
 class Pedido {
   String id;
-  Map<dynamic, int> produtos;
+  Itens itens;
   DateTime dataPedido;
   String observacao;
   String formaPagamento;
@@ -10,22 +12,16 @@ class Pedido {
 
   Pedido({
     required this.id,
-    required this.produtos,
+    required this.itens,
     required this.dataPedido,
     required this.observacao,
     required this.formaPagamento,
   });
 
   Map<String, dynamic> toJson() {
-    List<Produto> produtosList = [];
-    produtos.forEach((key, value) {
-      for (var i = 0; i < value; i++) {
-        produtosList.add(key);
-      }
-    });
     return {
       'id': id,
-      'produtos': produtosList.map((e) => e.toJson()).toList(),
+      'itens': itens.produtos.map((produto) => produto.toJson()).toList(),
       'dataPedido': dataPedido.toIso8601String(),
       'observacao': observacao,
       'formaPagamento': formaPagamento,
@@ -35,38 +31,23 @@ class Pedido {
 
   // fromJson
   factory Pedido.fromJson(Map<String, dynamic> json) {
-    final List<Produto> produtosList = (json['produtos'] as List<dynamic>)
+    final List<dynamic> produtosJson = json['itens'];
+    final List<Produto> produtosList = produtosJson
         .map((produtoJson) => Produto.fromJson(produtoJson))
         .toList();
-
-    final Map<int, int> produtos =
-        {}; // Usar int como chave para o ID do produto
-    for (var produto in produtosList) {
-      final produtoId = produto.id;
-      produtos.update(produtoId, (value) => (value) + 1, ifAbsent: () => 1);
-    }
-    final Map<Produto, int> produtosQuantidades = {};
-    produtos.forEach((produtoId, quantidade) {
-      final produto = produtosList.firstWhere((p) => p.id == produtoId);
-      produtosQuantidades[produto] = quantidade;
-    });
+    final Itens itens = Itens(produtos: produtosList);
 
     return Pedido(
       id: json['id'] ?? "",
-      produtos: produtosQuantidades,
+      itens: itens,
       dataPedido: DateTime.parse(json['dataPedido']),
       observacao: json['observacao'],
       formaPagamento: json['formaPagamento'],
-      //saidaStatus: SaidaStatus.fromJson(json['saidaStatus']),
     );
   }
 
   double getValorPedido() {
-    double valorPedido = 0.0;
-    produtos.forEach((key, value) {
-      double valorproduto = (key.valor != null) ? key.valor! : key.valor;
-      valorPedido += valorproduto * value;
-    });
-    return valorPedido;
+    return itens.calcularValorTotalComDesconto(
+        0); // Sem desconto por padrão, pode ser ajustado conforme necessário
   }
 }
