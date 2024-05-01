@@ -13,21 +13,20 @@ import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
-class PedidoEmitirPage extends StatefulWidget {
-  const PedidoEmitirPage({super.key});
+class PedidoEmitirPageTeste extends StatefulWidget {
+  const PedidoEmitirPageTeste({Key? key}) : super(key: key);
 
   @override
-  _PedidoEmitirPageState createState() => _PedidoEmitirPageState();
+  _PedidoEmitirPageTesteState createState() => _PedidoEmitirPageTesteState();
 }
 
-class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
-  final ClienteDAO _clienteDAO = ClienteDAO(); // Instância do DAO do cliente
-  ClienteDTO? _clienteSelecionado; // Cliente selecionado no dropdown
-  List<ClienteDTO> _clientesLista = []; // Lista de clientes
+class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
+  final ClienteDAO _clienteDAO = ClienteDAO();
+  ClienteDTO? _clienteSelecionado;
+  List<ClienteDTO> _clientesLista = [];
 
   final VendedorDAO _vendedorDAO = VendedorDAO();
-  VendedorDTO?
-      _vendedorSelecionado; // para teste apagar pois pegará do usuário logado
+  VendedorDTO? _vendedorSelecionado;
   List<VendedorDTO> _vendedoresLista = [];
 
   final ProdutoDAO _produtoDAO = ProdutoDAO();
@@ -36,7 +35,10 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
 
   final ItensDAO _itensDAO = ItensDAO();
   ItensDTO? _itensDTO;
-  List<ItensDTO> _itens_lista = [];
+  List<ItensDTO> _itensLista = [];
+
+  List<ProdutoDTO> _produtosSelecionados = [];
+  List<int> _quantidades = [];
 
   @override
   void initState() {
@@ -48,12 +50,9 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
   }
 
   void _loadClientes() async {
-    // Supondo que _clienteDAO.selectAll() retorna Future<List<Cliente>>
     List<Cliente> clientes = await _clienteDAO.selectAll();
-    // Converte cada Cliente em um ClienteDTO
     List<ClienteDTO> clientesDTO =
         clientes.map((cliente) => ClienteDTO.fromCliente(cliente)).toList();
-    // Atualiza o estado da aplicação com a lista de clientes DTO
     setState(() {
       _clientesLista = clientesDTO;
     });
@@ -75,6 +74,29 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
         produtos.map((produto) => ProdutoDTO.fromProduto(produto)).toList();
     setState(() {
       _produtosLista = produtoDTO;
+    });
+  }
+
+  void _adicionarProdutoAoCarrinho() {
+    if (_produtoSelecionado != null) {
+      setState(() {
+        _produtosSelecionados.add(_produtoSelecionado!);
+        _quantidades.add(1); // Quantidade padrão ao adicionar um produto
+      });
+    }
+  }
+
+  double _calcularTotal() {
+    double total = 0;
+    for (int i = 0; i < _produtosSelecionados.length; i++) {
+      total += _produtosSelecionados[i].valor * _quantidades[i];
+    }
+    return total;
+  }
+
+  void _alterarQuantidade(int index, int novaQuantidade) {
+    setState(() {
+      _quantidades[index] = novaQuantidade;
     });
   }
 
@@ -140,6 +162,37 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
                 labelText: 'Produto',
               ),
             ),
+            ElevatedButton(
+              onPressed: _adicionarProdutoAoCarrinho,
+              child: Text('Adicionar ao Carrinho'),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: _produtosSelecionados.length,
+              itemBuilder: (context, index) {
+                return Row(
+                  children: [
+                    Text(_produtosSelecionados[index].nome ?? ''),
+                    SizedBox(width: 10),
+                    Text('Quantidade: '),
+                    SizedBox(
+                      width: 50,
+                      child: TextFormField(
+                        initialValue: _quantidades[index].toString(),
+                        onChanged: (value) {
+                          _alterarQuantidade(index, int.tryParse(value) ?? 1);
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                        'Total: ${_produtosSelecionados[index].valor * _quantidades[index]}'),
+                  ],
+                );
+              },
+            ),
+            Text('Total: ${_calcularTotal()}'),
           ],
         ),
       ),
