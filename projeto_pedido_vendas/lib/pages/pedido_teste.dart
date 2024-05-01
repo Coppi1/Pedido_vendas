@@ -7,6 +7,7 @@ import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
+import 'package:projeto_pedido_vendas/pages/appBar.dart';
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
@@ -103,9 +104,9 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Emitir Pedido'),
-      ),
+      appBar: MinhaAppBar(),
+      drawer: MenuLateralEsquerdo(), // Adiciona o menu lateral direito
+      endDrawer: MenuLateralDireito(), // Adiciona o menu lateral esquerdo
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
