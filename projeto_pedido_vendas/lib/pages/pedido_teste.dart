@@ -36,10 +36,10 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
 
   final ItensDAO _itensDAO = ItensDAO();
   ItensDTO? _itensDTO;
-  List<ItensDTO> _itensLista = [];
+  final List<ItensDTO> _itensLista = [];
 
-  List<ProdutoDTO> _produtosSelecionados = [];
-  List<int> _quantidades = [];
+  final List<ProdutoDTO> _produtosSelecionados = [];
+  final List<int> _quantidades = [];
 
   @override
   void initState() {
@@ -107,95 +107,133 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
       appBar: MinhaAppBar(),
       drawer: MenuLateralEsquerdo(), // Adiciona o menu lateral direito
       endDrawer: MenuLateralDireito(), // Adiciona o menu lateral esquerdo
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            DropdownButtonFormField<ClienteDTO>(
-              value: _clienteSelecionado,
-              onChanged: (ClienteDTO? cliente) {
-                setState(() {
-                  _clienteSelecionado = cliente;
-                });
-              },
-              items: _clientesLista.map((ClienteDTO cliente) {
-                return DropdownMenuItem<ClienteDTO>(
-                  value: cliente,
-                  child: Text(cliente.nome ?? ''),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Cliente',
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color.fromARGB(255, 143, 205, 255), Colors.white],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0, 0.7],
               ),
             ),
-            DropdownButtonFormField<VendedorDTO>(
-              value: _vendedorSelecionado,
-              onChanged: (VendedorDTO? vendedor) {
-                setState(() {
-                  _vendedorSelecionado = vendedor;
-                });
-              },
-              items: _vendedoresLista.map((VendedorDTO vendedor) {
-                return DropdownMenuItem<VendedorDTO>(
-                  value: vendedor,
-                  child: Text(vendedor.nome ?? ''),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Vendedor',
-              ),
-            ),
-            DropdownButtonFormField<ProdutoDTO>(
-              value: _produtoSelecionado,
-              onChanged: (ProdutoDTO? produto) {
-                setState(() {
-                  _produtoSelecionado = produto;
-                });
-              },
-              items: _produtosLista.map((ProdutoDTO produto) {
-                return DropdownMenuItem<ProdutoDTO>(
-                  value: produto,
-                  child: Text(produto.nome ?? ''),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Produto',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: _adicionarProdutoAoCarrinho,
-              child: Text('Adicionar ao Carrinho'),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _produtosSelecionados.length,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    Text(_produtosSelecionados[index].nome ?? ''),
-                    SizedBox(width: 10),
-                    Text('Quantidade: '),
-                    SizedBox(
-                      width: 50,
-                      child: TextFormField(
-                        initialValue: _quantidades[index].toString(),
-                        onChanged: (value) {
-                          _alterarQuantidade(index, int.tryParse(value) ?? 1);
-                        },
-                        keyboardType: TextInputType.number,
+          ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                DropdownButtonFormField<ClienteDTO>(
+                  value: _clienteSelecionado,
+                  onChanged: (ClienteDTO? cliente) {
+                    setState(() {
+                      _clienteSelecionado = cliente;
+                    });
+                  },
+                  items: _clientesLista.map((ClienteDTO cliente) {
+                    return DropdownMenuItem<ClienteDTO>(
+                      value: cliente,
+                      child: Text(cliente.nome ?? ''),
+                    );
+                  }).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Cliente',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0), // Espaçamento entre os dropdowns
+                DropdownButtonFormField<VendedorDTO>(
+                  value: _vendedorSelecionado,
+                  onChanged: (VendedorDTO? vendedor) {
+                    setState(() {
+                      _vendedorSelecionado = vendedor;
+                    });
+                  },
+                  items: _vendedoresLista.map((VendedorDTO vendedor) {
+                    return DropdownMenuItem<VendedorDTO>(
+                      value: vendedor,
+                      child: Text(vendedor.nome ?? ''),
+                    );
+                  }).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Vendedor',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0), // Espaçamento entre os dropdowns
+                DropdownButtonFormField<ProdutoDTO>(
+                  value: _produtoSelecionado,
+                  onChanged: (ProdutoDTO? produto) {
+                    setState(() {
+                      _produtoSelecionado = produto;
+                    });
+                  },
+                  items: _produtosLista.map((ProdutoDTO produto) {
+                    return DropdownMenuItem<ProdutoDTO>(
+                      value: produto,
+                      child: Text(produto.nome ?? ''),
+                    );
+                  }).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Produto',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0), // Espaçamento entre os dropdowns
+                OutlinedButton(
+                  onPressed: _adicionarProdutoAoCarrinho,
+                  child: const Text('Adicionar ao Carrinho'),
+                ),
+                const SizedBox(
+                    height:
+                        16.0), // Espaçamento entre o botão e a lista de produtos
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _produtosSelecionados.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 4.0,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ListTile(
+                        title: Text(_produtosSelecionados[index].nome ?? ''),
+                        subtitle: Row(
+                          children: [
+                            const Text('Quantidade: '),
+                            SizedBox(
+                              width: 50,
+                              child: TextFormField(
+                                initialValue: _quantidades[index].toString(),
+                                onChanged: (value) {
+                                  _alterarQuantidade(
+                                      index, int.tryParse(value) ?? 1);
+                                },
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                            Text(
+                                'Total: ${_produtosSelecionados[index].valor * _quantidades[index]}'),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                        'Total: ${_produtosSelecionados[index].valor * _quantidades[index]}'),
-                  ],
-                );
-              },
+                    );
+                  },
+                ),
+                const SizedBox(
+                    height:
+                        16.0), // Espaçamento entre a lista de produtos e o texto do total
+                Card(
+                  elevation: 4.0,
+                  margin: const EdgeInsets.all(16.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Total: ${_calcularTotal()}'),
+                  ),
+                ),
+              ],
             ),
-            Text('Total: ${_calcularTotal()}'),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

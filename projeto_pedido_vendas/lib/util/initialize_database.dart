@@ -78,6 +78,6 @@ Future<void> initializeDatabase() async {
   //   'endereco': 'Rua das Flores, 123',
   //   'cidade': 'São Paulo',
   //   'nmrCpfCnpj': '123.456.789-00',
-  //   'vendedorId': 1, // Supondo que você tenha um vendedor com ID 1
+  //   'vendedorId': 1, //Supondo que você tenha um vendedor com ID 1
   // });
 }
