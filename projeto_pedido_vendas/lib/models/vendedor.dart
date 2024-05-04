@@ -13,7 +13,7 @@ class Vendedor {
     );
   }
 
-  Map<String, dynamic> fromJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'nome': nome,

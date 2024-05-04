@@ -1,3 +1,4 @@
+import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart'; // Certifique-se de importar a classe Produto aqui
 
 class ItensDTO {
@@ -16,6 +17,12 @@ class ItensDTO {
     return ItensDTO(
       produtos: produtosList,
     );
+  }
+
+  Itens toItens() {
+    List<Produto> listaProdutos =
+        produtos.map((produtoJson) => Produto.fromJson(produtoJson)).toList();
+    return Itens(produtos: listaProdutos);
   }
 
   // Método para converter de DTO para JSON

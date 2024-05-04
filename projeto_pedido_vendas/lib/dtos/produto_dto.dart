@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:projeto_pedido_vendas/models/produto.dart';
+import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
 class ProdutoDTO {
   int? id;
@@ -48,6 +51,18 @@ class ProdutoDTO {
       'nome': nome,
       'valor': valor,
     };
+  }
+
+  Vendedor toVendedor() {
+    return Vendedor(
+      id: id,
+      nome: nome,
+      // outras propriedades...
+    );
+  }
+
+  String toJson() {
+    return jsonEncode(toMap());
   }
 
   @override

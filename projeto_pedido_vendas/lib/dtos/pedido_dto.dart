@@ -1,27 +1,34 @@
-import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
-import 'package:projeto_pedido_vendas/dtos/pedido_validate_mixing.dart';
+import 'dart:convert';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
-import 'package:projeto_pedido_vendas/models/pedido.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart'; // Importe a classe Itens aqui
+import 'package:projeto_pedido_vendas/models/pagamento.dart';
+import 'package:projeto_pedido_vendas/models/produto.dart';
+import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
-class PedidoDTO with PedidoValidate {
+class PedidoDTO {
   int? id;
   DateTime dataPedido;
   String observacao;
   String formaPagamento;
   bool? sincronizado;
-  Itens itens; // Agora armazena diretamente um objeto Itens
+  Itens itens;
+  double valorTotal;
+  Cliente cliente;
+  Vendedor vendedor;
+  Pagamento pagamento; // Adicione o campo pagamento
 
   PedidoDTO({
     this.id,
     required this.dataPedido,
     required this.observacao,
     required this.formaPagamento,
-    required this.itens, // Agora recebe diretamente um objeto Itens
+    required this.itens,
+    this.valorTotal = 0,
+    required this.cliente,
+    required this.vendedor,
+    required this.pagamento, // Inicialize o campo pagamento
   });
 
-  // Método para converter de JSON para DTO
   factory PedidoDTO.fromJson(Map<String, dynamic> json) {
     final List<dynamic> produtosJson = json['produtos'];
     final List<Produto> produtosList = produtosJson
@@ -34,11 +41,14 @@ class PedidoDTO with PedidoValidate {
       dataPedido: DateTime.parse(json['dataPedido']),
       observacao: json['observacao'] ?? '',
       formaPagamento: json['formaPagamento'] ?? '',
-      itens: itens, // Atualizado para receber um objeto Itens
+      itens: itens,
+      cliente: Cliente.fromJson(json['cliente']),
+      vendedor: Vendedor.fromJson(json['vendedor']),
+      pagamento: Pagamento.fromJson(
+          json['pagamento']), // Convertendo o pagamento do JSON
     );
   }
 
-  // Método para converter de DTO para Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -46,9 +56,10 @@ class PedidoDTO with PedidoValidate {
       'observacao': observacao,
       'formaPagamento': formaPagamento,
       'sincronizado': sincronizado,
-      'produtos': itens.produtos
-          .map((produto) => produto.toJson())
-          .toList(), // Converta os produtos de Itens para JSON
+      'produtos': itens.produtos.map((produto) => produto.toJson()).toList(),
+      'cliente': cliente.toJson(),
+      'vendedor': vendedor.toJson(),
+      'pagamento': pagamento.toJson(), // Convertendo o pagamento para JSON
     };
   }
 
