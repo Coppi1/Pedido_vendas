@@ -1,32 +1,43 @@
+import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart'; // Certifique-se de importar a classe Produto aqui
 
 class ItensDTO {
-  List<Map<String, dynamic>>
-      produtos; // Lista de Mapas para representar os produtos
+  List<ProdutoDTO> produtos;
 
-  ItensDTO({
-    required this.produtos,
-  });
+  ItensDTO({required this.produtos});
 
-  // Método para converter de JSON para DTO
-  factory ItensDTO.fromJson(List<dynamic> json) {
-    final List<Map<String, dynamic>> produtosList =
-        json.cast<Map<String, dynamic>>();
-
+  // Método para converter de ProdutoDTO para ItensDTO
+  factory ItensDTO.fromProdutos(List<ProdutoDTO> produtos) {
     return ItensDTO(
-      produtos: produtosList,
+      produtos: produtos,
     );
   }
 
-  Itens toItens() {
-    List<Produto> listaProdutos =
-        produtos.map((produtoJson) => Produto.fromJson(produtoJson)).toList();
-    return Itens(produtos: listaProdutos);
+  List<ItensDTO> converterProdutosParaItens(List<ProdutoDTO> produtos) {
+    return [ItensDTO.fromProdutos(produtos)];
   }
 
-  // Método para converter de DTO para JSON
+  factory ItensDTO.fromJson(List<dynamic> json) {
+    final List<Map<String, dynamic>> produtosList =
+        json.cast<Map<String, dynamic>>();
+    final List<ProdutoDTO> produtos = produtosList
+        .map((produtoJson) => ProdutoDTO.fromJson(produtoJson))
+        .toList();
+
+    return ItensDTO(
+      produtos: produtos,
+    );
+  }
+
+  // Itens toItens() {
+  //   List<Produto> listaProdutos = produtos
+  //       .map((produtoDto) => Produto.fromJson(produtoDto.toJson()))
+  //       .toList();
+  //   return Itens(produtos: listaProdutos);
+  // }
+
   List<dynamic> toJson() {
-    return produtos;
+    return produtos.map((produto) => produto.toJson()).toList();
   }
 }

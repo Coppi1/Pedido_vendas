@@ -29,6 +29,24 @@ class _PagamentoPageState extends State<PagamentoPage> {
     });
   }
 
+  void _finalizarPedido() async {
+    // Atualize o valor total do pedido com o valor total com desconto
+    widget.pedido.valorTotal = _valorTotalComDesconto;
+
+    // Aqui você pode inserir o pedido no banco de dados
+    // Por exemplo, se você tiver um DAO para pedidos, você chamaria algo como:
+    // await PedidoDAO().insert(widget.pedido);
+
+    // Após inserir o pedido, você pode navegar para outra tela
+    // Por exemplo, para uma tela de confirmação:
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            ConfirmacaoPage(), // Substitua ConfirmacaoPage pela sua tela de confirmação
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +129,20 @@ class _PagamentoPageState extends State<PagamentoPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ConfirmacaoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Confirmação'),
+      ),
+      body: Center(
+        child: Text('Pedido confirmado com sucesso'),
       ),
     );
   }

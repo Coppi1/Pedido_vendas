@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
-import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart'; // Importe o DTO de pagamento
+import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
@@ -9,7 +9,7 @@ import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
-import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart'; // Importe a tela de pagamento
+import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart';
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
@@ -40,7 +40,7 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
 
   final ItensDAO _itensDAO = ItensDAO();
   ItensDTO? _itensDTO;
-  final List<ItensDTO> _itensLista = [];
+  List<ItensDTO> _itensLista = [];
 
   final List<ProdutoDTO> _produtosSelecionados = [];
   final List<int> _quantidades = [];
@@ -96,8 +96,16 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
       setState(() {
         _produtosSelecionados.add(_produtoSelecionado!);
         _quantidades.add(1);
+        _itensLista.add(Itens(produto: _produtoSelecionado!, quantidade: 1));
       });
     }
+  }
+
+  void _alterarQuantidade(int index, int novaQuantidade) {
+    setState(() {
+      _quantidades[index] = novaQuantidade;
+      _itensLista[index].quantidade = novaQuantidade;
+    });
   }
 
   double _calcularTotal() {
@@ -114,7 +122,7 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
     });
   }
 
-  void _emitirPedido() async {
+  void _emitirPedido(BuildContext context) async {
     if (_clienteSelecionado != null &&
         _produtosSelecionados.isNotEmpty &&
         _vendedorSelecionado != null) {
@@ -126,18 +134,19 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
       PagamentoDTO pagamento =
           PagamentoDTO(valorTotal: _calcularTotal(), desconto: 0);
 
-      // Criando o DTO de itens pedido
-      ItensDTO itens = ItensDTO(
-          produtos:
-              _produtosSelecionados.map((produto) => produto.toMap()).toList());
+      // // Criando o DTO de itens pedido
+      // ItensDTO itens = ItensDTO(
+      //     produtos:
+      //         _produtosSelecionados.map((produto) => produto.toMap()).toList());
 
       // Criando o DTO de pedido
       PedidoDTO pedido = PedidoDTO(
+        id: 1,
         dataPedido: dataPedido,
         observacao: "", // Observação inicial vazia
         formaPagamento:
             _formaPagamentoSelecionada ?? "", // Forma de pagamento selecionada
-        itens: itens.toItens(),
+        itens: itens,
         valorTotal: _calcularTotal(),
         cliente: _clienteSelecionado!
             .toCliente(), // Convertendo o cliente selecionado para o modelo Cliente
@@ -149,9 +158,11 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
       // Salvar o pedido no banco de dados ou fazer qualquer outra operação necessária
       await _pedidoDAO.insert(pedido);
 
+      // Adicionar um log para verificar se o método está sendo chamado corretamente
+      print('Pedido emitido: $pedido');
+
       // Navegar para a tela de pagamento, passando o pedido como argumento
-      Navigator.push(
-        context,
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => PagamentoPage(pedido: pedido),
         ),
@@ -315,8 +326,7 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
                 ),
                 const SizedBox(height: 50.0),
                 OutlinedButton(
-                  onPressed:
-                      _emitirPedido, // Alterado para chamar a função de emitir pedido
+                  onPressed: () => _emitirPedido(context),
                   child: const Text('Emitir Pedido'),
                 ),
               ],

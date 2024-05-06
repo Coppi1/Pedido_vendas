@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/pagamento.dart';
@@ -6,35 +7,34 @@ import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
 class PedidoDTO {
-  int? id;
+  int id;
   DateTime dataPedido;
   String observacao;
   String formaPagamento;
-  bool? sincronizado;
-  Itens itens;
+  List<ItensDTO> itens;
   double valorTotal;
   Cliente cliente;
   Vendedor vendedor;
-  Pagamento pagamento; // Adicione o campo pagamento
+  Pagamento pagamento;
 
   PedidoDTO({
-    this.id,
+    required this.id,
     required this.dataPedido,
     required this.observacao,
     required this.formaPagamento,
     required this.itens,
-    this.valorTotal = 0,
+    required this.valorTotal,
     required this.cliente,
     required this.vendedor,
-    required this.pagamento, // Inicialize o campo pagamento
+    required this.pagamento,
   });
 
   factory PedidoDTO.fromJson(Map<String, dynamic> json) {
     final List<dynamic> produtosJson = json['produtos'];
-    final List<Produto> produtosList = produtosJson
-        .map((produtoJson) => Produto.fromJson(produtoJson))
+    final List<ProdutoDTO> produtosList = produtosJson
+        .map((produtoJson) => ProdutoDTO.fromJson(produtoJson))
         .toList();
-    final Itens itens = Itens(produtos: produtosList);
+    final ItensDTO itens = ItensDTO.fromProdutos(produtosList);
 
     return PedidoDTO(
       id: json['id'] ?? '',
@@ -44,8 +44,7 @@ class PedidoDTO {
       itens: itens,
       cliente: Cliente.fromJson(json['cliente']),
       vendedor: Vendedor.fromJson(json['vendedor']),
-      pagamento: Pagamento.fromJson(
-          json['pagamento']), // Convertendo o pagamento do JSON
+      pagamento: Pagamento.fromJson(json['pagamento']),
     );
   }
 
@@ -55,16 +54,15 @@ class PedidoDTO {
       'dataPedido': dataPedido.toIso8601String(),
       'observacao': observacao,
       'formaPagamento': formaPagamento,
-      'sincronizado': sincronizado,
       'produtos': itens.produtos.map((produto) => produto.toJson()).toList(),
       'cliente': cliente.toJson(),
       'vendedor': vendedor.toJson(),
-      'pagamento': pagamento.toJson(), // Convertendo o pagamento para JSON
+      'pagamento': pagamento.toJson(),
     };
   }
 
   @override
   String toString() {
-    return 'PedidoDTO(id: $id, dataPedido: $dataPedido, observacao: $observacao, formaPagamento: $formaPagamento, sincronizado: $sincronizado, itens: $itens)';
+    return 'PedidoDTO(id: $id, dataPedido: $dataPedido, observacao: $observacao, formaPagamento: $formaPagamento, itens: $itens)';
   }
 }
