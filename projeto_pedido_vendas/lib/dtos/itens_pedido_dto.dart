@@ -1,32 +1,35 @@
-import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart'; // Certifique-se de importar a classe Produto aqui
-
 class ItensDTO {
-  List<Map<String, dynamic>>
-      produtos; // Lista de Mapas para representar os produtos
+  int? id;
+  int? pedidoId;
+  int? produtoId;
+  int? quantidade;
+  double? valorTotal;
 
   ItensDTO({
-    required this.produtos,
+    this.id,
+    this.pedidoId,
+    this.produtoId,
+    this.quantidade,
+    this.valorTotal,
   });
 
-  // Método para converter de JSON para DTO
-  factory ItensDTO.fromJson(List<dynamic> json) {
-    final List<Map<String, dynamic>> produtosList =
-        json.cast<Map<String, dynamic>>();
-
+  factory ItensDTO.fromJson(Map<String, dynamic> json) {
     return ItensDTO(
-      produtos: produtosList,
+      id: json['id'],
+      pedidoId: json['pedidoId'],
+      produtoId: json['produtoId'],
+      quantidade: json['quantidade'],
+      valorTotal: json['valorTotal'],
     );
   }
 
-  Itens toItens() {
-    List<Produto> listaProdutos =
-        produtos.map((produtoJson) => Produto.fromJson(produtoJson)).toList();
-    return Itens(produtos: listaProdutos);
-  }
-
-  // Método para converter de DTO para JSON
-  List<dynamic> toJson() {
-    return produtos;
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'pedidoId': pedidoId,
+      'produtoId': produtoId,
+      'quantidade': quantidade,
+      'valorTotal': valorTotal,
+    };
   }
 }
