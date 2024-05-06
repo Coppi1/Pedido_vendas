@@ -38,6 +38,13 @@ class _PedidoEmitirPageState extends State<PedidoEmitirPage> {
   ItensDTO? _itensDTO;
   final List<ItensDTO> _itens_lista = [];
 
+  final List<String> formasPagamento = [
+    'Dinheiro',
+    'Cartão de Crédito',
+    'Cartão de Débito',
+    'Pix'
+  ];
+
   @override
   void initState() {
     super.initState();

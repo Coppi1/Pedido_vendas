@@ -62,6 +62,14 @@ class ClienteDTO {
     );
   }
 
+  Cliente toCliente() {
+    return Cliente(
+      id: id,
+      nome: nome,
+      // outras propriedades...
+    );
+  }
+
   @override
   String toString() {
     return 'ClienteDTO(id: $id, nome: $nome, endereco: $endereco, cidade: $cidade, nmrCpfCnpj: $nmrCpfCnpj, vendedor: $vendedor)';

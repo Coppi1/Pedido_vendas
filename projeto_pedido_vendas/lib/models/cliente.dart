@@ -17,11 +17,12 @@ class Cliente {
     this.vendedor,
   });
 
-  Map<String, dynamic> fromJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'cidade': cidade,
-      'vendedor': vendedor?.fromJson(),
+      'vendedor':
+          vendedor?.toJson(), // Convertendo o vendedor para JSON, se existir
       'nome': nome,
       'endereco': endereco,
       'nmrCpfCnpj': nmrCpfCnpj,

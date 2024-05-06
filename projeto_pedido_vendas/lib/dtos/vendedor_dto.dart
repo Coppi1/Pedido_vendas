@@ -17,6 +17,14 @@ class VendedorDTO {
     };
   }
 
+  Vendedor toVendedor() {
+    return Vendedor(
+      id: id,
+      nome: nome,
+      // outras propriedades...
+    );
+  }
+
   // Método para converter de JSON para VendedorDTO
   factory VendedorDTO.fromJson(Map<String, dynamic> json) {
     return VendedorDTO(

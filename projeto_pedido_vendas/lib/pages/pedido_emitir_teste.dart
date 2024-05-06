@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart'; // Importe o DTO de pagamento
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
@@ -8,29 +9,32 @@ import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
+import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart'; // Importe a tela de pagamento
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
-class PedidoEmitirPageTeste extends StatefulWidget {
-  const PedidoEmitirPageTeste({Key? key}) : super(key: key);
+class PedidoEmitirPageTeste2 extends StatefulWidget {
+  const PedidoEmitirPageTeste2({Key? key}) : super(key: key);
 
   @override
-  _PedidoEmitirPageTesteState createState() => _PedidoEmitirPageTesteState();
+  _PedidoEmitirPageTeste2State createState() => _PedidoEmitirPageTeste2State();
 }
 
-class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
+class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
   final ClienteDAO _clienteDAO = ClienteDAO();
   ClienteDTO? _clienteSelecionado;
   List<ClienteDTO> _clientesLista = [];
 
   final VendedorDAO _vendedorDAO = VendedorDAO();
+  final ProdutoDAO _produtoDAO = ProdutoDAO();
+  final PedidoDAO _pedidoDAO = PedidoDAO();
+
   VendedorDTO? _vendedorSelecionado;
   List<VendedorDTO> _vendedoresLista = [];
 
-  final ProdutoDAO _produtoDAO = ProdutoDAO();
   ProdutoDTO? _produtoSelecionado;
   List<ProdutoDTO> _produtosLista = [];
 
@@ -55,6 +59,8 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
     _loadClientes();
     _loadProdutos();
     _loadVendedores();
+    _vendedorSelecionado =
+        _vendedoresLista.length > 1 ? _vendedoresLista[1] : null;
   }
 
   void _loadVendedores() async {
@@ -106,6 +112,51 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
     setState(() {
       _quantidades[index] = novaQuantidade;
     });
+  }
+
+  void _emitirPedido() async {
+    if (_clienteSelecionado != null &&
+        _produtosSelecionados.isNotEmpty &&
+        _vendedorSelecionado != null) {
+      DateTime dataPedido = DateTime.now(); // Definindo a data de hoje
+      VendedorDTO vendedor =
+          _vendedoresLista[0]; // Pegando o primeiro vendedor da lista
+
+      // Criando o DTO de pagamento com valor total igual ao total do pedido e desconto inicial zero
+      PagamentoDTO pagamento =
+          PagamentoDTO(valorTotal: _calcularTotal(), desconto: 0);
+
+      // Criando o DTO de itens pedido
+      ItensDTO itens = ItensDTO(
+          produtos:
+              _produtosSelecionados.map((produto) => produto.toMap()).toList());
+
+      // Criando o DTO de pedido
+      PedidoDTO pedido = PedidoDTO(
+        dataPedido: dataPedido,
+        observacao: "", // Observação inicial vazia
+        formaPagamento:
+            _formaPagamentoSelecionada ?? "", // Forma de pagamento selecionada
+        itens: itens.toItens(),
+        valorTotal: _calcularTotal(),
+        cliente: _clienteSelecionado!
+            .toCliente(), // Convertendo o cliente selecionado para o modelo Cliente
+        vendedor: _vendedorSelecionado!
+            .toVendedor(), // Convertendo o vendedor selecionado para o modelo Vendedor
+        pagamento: pagamento.toPagamento(), // Passando o DTO de pagamento
+      );
+
+      // Salvar o pedido no banco de dados ou fazer qualquer outra operação necessária
+      await _pedidoDAO.insert(pedido);
+
+      // Navegar para a tela de pagamento, passando o pedido como argumento
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PagamentoPage(pedido: pedido),
+        ),
+      );
+    }
   }
 
   @override
@@ -192,7 +243,9 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
                   onPressed: _adicionarProdutoAoCarrinho,
                   child: const Text('Adicionar ao Carrinho'),
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(
+                  height: 16.0,
+                ),
                 ListView.builder(
                   shrinkWrap: true,
                   itemCount: _produtosSelecionados.length,
@@ -217,7 +270,9 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
                                 textAlign: TextAlign.center,
                               ),
                             ),
-                            SizedBox(width: 70),
+                            SizedBox(
+                              width: 70,
+                            ),
                             Text(
                               'Total: R\$ ${(_produtosSelecionados[index].valor * _quantidades[index]).toStringAsFixed(2)}',
                             )
@@ -227,7 +282,9 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
                     );
                   },
                 ),
-                const SizedBox(height: 13.0),
+                const SizedBox(
+                  height: 13.0,
+                ),
                 Card(
                   elevation: 4.0,
                   margin: const EdgeInsets.all(2.0),
@@ -258,7 +315,8 @@ class _PedidoEmitirPageTesteState extends State<PedidoEmitirPageTeste> {
                 ),
                 const SizedBox(height: 50.0),
                 OutlinedButton(
-                  onPressed: _adicionarProdutoAoCarrinho,
+                  onPressed:
+                      _emitirPedido, // Alterado para chamar a função de emitir pedido
                   child: const Text('Emitir Pedido'),
                 ),
               ],
