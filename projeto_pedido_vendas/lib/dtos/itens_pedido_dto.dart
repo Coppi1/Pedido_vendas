@@ -1,43 +1,47 @@
-import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart'; // Certifique-se de importar a classe Produto aqui
 
 class ItensDTO {
-  List<ProdutoDTO> produtos;
+  int? id;
+  int? pedidoId;
+  int? produtoId;
+  int? quantidade;
+  double? valorTotal;
 
-  ItensDTO({required this.produtos});
+  ItensDTO({
+    this.id,
+    this.pedidoId,
+    this.produtoId,
+    this.quantidade,
+    this.valorTotal,
+  });
 
-  // Método para converter de ProdutoDTO para ItensDTO
-  factory ItensDTO.fromProdutos(List<ProdutoDTO> produtos) {
+  factory ItensDTO.fromJson(Map<String, dynamic> json) {
     return ItensDTO(
-      produtos: produtos,
+      id: json['id'],
+      pedidoId: json['pedidoId'],
+      produtoId: json['produtoId'],
+      quantidade: json['quantidade'],
+      valorTotal: json['valorTotal'],
     );
   }
 
-  List<ItensDTO> converterProdutosParaItens(List<ProdutoDTO> produtos) {
-    return [ItensDTO.fromProdutos(produtos)];
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'pedidoId': pedidoId,
+      'produtoId': produtoId,
+      'quantidade': quantidade,
+      'valorTotal': valorTotal,
+    };
   }
 
-  factory ItensDTO.fromJson(List<dynamic> json) {
-    final List<Map<String, dynamic>> produtosList =
-        json.cast<Map<String, dynamic>>();
-    final List<ProdutoDTO> produtos = produtosList
-        .map((produtoJson) => ProdutoDTO.fromJson(produtoJson))
-        .toList();
-
+  factory ItensDTO.fromItens(Itens itens) {
     return ItensDTO(
-      produtos: produtos,
+      id: itens.id,
+      pedidoId: itens.pedido?.id,
+      produtoId: itens.produto?.id,
+      quantidade: itens.quantidade,
+      valorTotal: itens.valorTotal,
     );
-  }
-
-  // Itens toItens() {
-  //   List<Produto> listaProdutos = produtos
-  //       .map((produtoDto) => Produto.fromJson(produtoDto.toJson()))
-  //       .toList();
-  //   return Itens(produtos: listaProdutos);
-  // }
-
-  List<dynamic> toJson() {
-    return produtos.map((produto) => produto.toJson()).toList();
   }
 }

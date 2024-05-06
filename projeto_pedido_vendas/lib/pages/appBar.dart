@@ -6,6 +6,8 @@ import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VendedorDAO _vendedorDAO = VendedorDAO();
 
+  MinhaAppBar({super.key});
+
   @override
   void initState() {
     // super.initState();
@@ -18,13 +20,13 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
-        icon: Icon(
+        icon: const Icon(
           Icons.business, // Ícone da empresa
           color: Colors.blue, // Cor azul
         ),
@@ -33,7 +35,7 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
           Scaffold.of(context).openDrawer();
         },
       ),
-      title: Row(
+      title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
@@ -69,13 +71,15 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class MenuLateralEsquerdo extends StatelessWidget {
+  const MenuLateralEsquerdo({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
+          const DrawerHeader(
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
@@ -94,36 +98,36 @@ class MenuLateralEsquerdo extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
             onTap: () {
               // Adicione aqui a função para ir para a tela inicial
             },
           ),
           ListTile(
-            leading: Icon(Icons.note_add),
-            title: Text('Emitir Pedidos'),
+            leading: const Icon(Icons.note_add),
+            title: const Text('Emitir Pedidos'),
             onTap: () {
               // Adicione aqui a função para ir para a tela de emissão de pedidos
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_cart),
-            title: Text('Pedidos'),
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text('Pedidos'),
             onTap: () {
               // Adicione aqui a função para ir para a tela de pedidos
             },
           ),
           ListTile(
-            leading: Icon(Icons.people),
-            title: Text('Clientes'),
+            leading: const Icon(Icons.people),
+            title: const Text('Clientes'),
             onTap: () {
               // Adicione aqui a função para ir para a tela de clientes
             },
           ),
           ListTile(
-            leading: Icon(Icons.business),
-            title: Text('Empresa'),
+            leading: const Icon(Icons.business),
+            title: const Text('Empresa'),
             onTap: () {
               // Adicione aqui a função para ir para a tela da empresa
             },
@@ -257,26 +261,28 @@ class MenuLateralEsquerdo extends StatelessWidget {
 class MenuLateralDireito extends StatelessWidget {
   final VendedorDAO _vendedorDAO = VendedorDAO();
 
+  MenuLateralDireito({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Vendedor>>(
       future: _loadVendedores(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo carregados
+          return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo carregados
         } else if (snapshot.hasError) {
           return Text('Erro ao carregar os vendedores: ${snapshot.error}');
         } else {
           String usuarioLogado = snapshot.data != null &&
                   snapshot.data!.isNotEmpty
-              ? snapshot.data![6].nome ?? 'Nome do Vendedor Padrão'
+              ? snapshot.data![1].nome ?? 'Nome do Vendedor Padrão'
               : 'Nome do Vendedor Padrão'; // Se houver vendedores, use o nome do primeiro vendedor, caso contrário, use um nome padrão
           return Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
               children: <Widget>[
                 DrawerHeader(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.blue,
                   ),
                   child: Column(
@@ -302,7 +308,7 @@ class MenuLateralDireito extends StatelessWidget {
                               Scaffold.of(context).openEndDrawer();
                             },
                           ),
-                          SizedBox(
+                          const SizedBox(
                               width:
                                   15), // Adiciona um espaço de 15 pixels entre o avatar e o texto
                           Column(
@@ -319,7 +325,7 @@ class MenuLateralDireito extends StatelessWidget {
                               ),
                               Text(
                                 usuarioLogado,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20.0,
                                 ),
@@ -332,36 +338,36 @@ class MenuLateralDireito extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  leading: Icon(Icons.notifications),
-                  title: Text('Notificações'),
+                  leading: const Icon(Icons.notifications),
+                  title: const Text('Notificações'),
                   onTap: () {
                     // Adicione aqui a função para as notificações
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text('Editar Conta'),
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Editar Conta'),
                   onTap: () {
                     // Adicione aqui a função para editar a conta
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.help),
-                  title: Text('Ajuda e Suporte'),
+                  leading: const Icon(Icons.help),
+                  title: const Text('Ajuda e Suporte'),
                   onTap: () {
                     // Adicione aqui a função para ajuda e suporte
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Opções'),
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Opções'),
                   onTap: () {
                     // Adicione aqui a função para ir para a tela de opções
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.exit_to_app),
-                  title: Text('Sair'),
+                  leading: const Icon(Icons.exit_to_app),
+                  title: const Text('Sair'),
                   onTap: () {
                     // Adicione aqui a função para sair
                   },

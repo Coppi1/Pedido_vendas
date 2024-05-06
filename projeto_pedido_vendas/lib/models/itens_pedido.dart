@@ -1,17 +1,17 @@
+import 'package:projeto_pedido_vendas/models/pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 
 class Itens {
-  List<Produto> produtos;
+  int? id;
+  Pedido? pedido;
+  Produto? produto;
+  int? quantidade;
+  double? valorTotal;
 
-  Itens({required this.produtos});
-
-  double calcularValorTotalComDesconto(double descontoPercentual) {
-    double valorTotal = 0;
-    for (var produto in produtos) {
-      valorTotal += produto.valor;
-    }
-    // Aplica o desconto ao valor total
-    valorTotal -= (valorTotal * (descontoPercentual / 100));
-    return valorTotal;
-  }
+  Itens(
+      {required this.produto,
+      required this.pedido,
+      required this.quantidade,
+      required this.valorTotal,
+      this.id});
 }
