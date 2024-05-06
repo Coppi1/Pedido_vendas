@@ -1,4 +1,5 @@
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
+import 'package:projeto_pedido_vendas/models/cliente.dart';
 
 class ClienteDTO {
   int? id;
@@ -39,5 +40,18 @@ class ClienteDTO {
       'nmrCpfCnpj': nmrCpfCnpj,
       'vendedor': vendedor != null ? vendedor!.toJson() : null,
     };
+  }
+
+  factory ClienteDTO.fromCliente(Cliente cliente) {
+    return ClienteDTO(
+      id: cliente.id,
+      nome: cliente.nome,
+      endereco: cliente.endereco,
+      cidade: cliente.cidade,
+      nmrCpfCnpj: cliente.nmrCpfCnpj,
+      vendedor: cliente.vendedor != null
+          ? VendedorDTO.fromVendedor(cliente.vendedor!)
+          : null,
+    );
   }
 }

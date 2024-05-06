@@ -1,3 +1,5 @@
+import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
+
 class ItensDTO {
   int? id;
   int? pedidoId;
@@ -31,5 +33,15 @@ class ItensDTO {
       'quantidade': quantidade,
       'valorTotal': valorTotal,
     };
+  }
+
+  factory ItensDTO.fromItens(Itens itens) {
+    return ItensDTO(
+      id: itens.id,
+      pedidoId: itens.pedido?.id,
+      produtoId: itens.produto?.id,
+      quantidade: itens.quantidade,
+      valorTotal: itens.valorTotal,
+    );
   }
 }

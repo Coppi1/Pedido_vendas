@@ -45,19 +45,10 @@ class _PedidoEmitirPageTeste2State extends State<PedidoEmitirPageTeste2> {
   final List<ProdutoDTO> _produtosSelecionados = [];
   final List<int> _quantidades = [];
 
-  final List<String> formasPagamento = [
-    'Dinheiro',
-    'Cartão de Crédito',
-    'Cartão de Débito',
-    'Pix'
-  ];
-  String? _formaPagamentoSelecionada;
-
   @override
   void initState() {
     super.initState();
     _loadClientes();
-    _loadProdutos();
     _loadVendedores();
     _vendedorSelecionado =
         _vendedoresLista.length > 1 ? _vendedoresLista[1] : null;

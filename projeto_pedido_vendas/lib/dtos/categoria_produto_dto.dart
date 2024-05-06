@@ -1,3 +1,5 @@
+import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
+
 class CategoriaProdutoDTO {
   int? id;
   String? descricao;
@@ -16,5 +18,13 @@ class CategoriaProdutoDTO {
       'id': id,
       'descricao': descricao,
     };
+  }
+
+  factory CategoriaProdutoDTO.fromCategoriaProduto(
+      CategoriaProduto categoriaProduto) {
+    return CategoriaProdutoDTO(
+      id: categoriaProduto.id,
+      descricao: categoriaProduto.descricao,
+    );
   }
 }

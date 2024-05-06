@@ -1,4 +1,5 @@
 import 'package:projeto_pedido_vendas/dtos/categoria_produto_dto.dart';
+import 'package:projeto_pedido_vendas/models/produto.dart';
 
 class ProdutoDTO {
   int? id;
@@ -44,5 +45,19 @@ class ProdutoDTO {
       'categoriaProduto':
           categoriaProduto != null ? categoriaProduto!.toJson() : null,
     };
+  }
+
+  factory ProdutoDTO.fromProduto(Produto produto) {
+    return ProdutoDTO(
+      id: produto.id,
+      marca: produto.marca,
+      unidade: produto.unidade,
+      tipoProduto: produto.tipoProduto,
+      nome: produto.nome,
+      valor: produto.valor,
+      categoriaProduto: produto.categoriaProduto != null
+          ? CategoriaProdutoDTO.fromCategoriaProduto(produto.categoriaProduto!)
+          : null,
+    );
   }
 }

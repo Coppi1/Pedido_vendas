@@ -1,3 +1,5 @@
+import 'package:projeto_pedido_vendas/models/vendedor.dart';
+
 class VendedorDTO {
   int? id;
   String? nome;
@@ -16,5 +18,12 @@ class VendedorDTO {
       'id': id,
       'nome': nome,
     };
+  }
+
+  factory VendedorDTO.fromVendedor(Vendedor vendedor) {
+    return VendedorDTO(
+      id: vendedor.id,
+      nome: vendedor.nome,
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
+
 class FormaPagamentoDTO {
   int? id;
   String? descricao;
@@ -16,5 +18,12 @@ class FormaPagamentoDTO {
       'id': id,
       'descricao': descricao,
     };
+  }
+
+  factory FormaPagamentoDTO.fromFormaPagamento(FormaPagamento formaPagamento) {
+    return FormaPagamentoDTO(
+      id: formaPagamento.id,
+      descricao: formaPagamento.descricao,
+    );
   }
 }
