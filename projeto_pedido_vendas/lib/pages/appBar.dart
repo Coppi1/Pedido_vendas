@@ -28,7 +28,7 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(
           Icons.business, // Ícone da empresa
-          color: Colors.blue, // Cor azul
+          color: Colors.blue,
         ),
         onPressed: () {
           // Função para abrir o menu lateral direito
@@ -41,7 +41,7 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
           Text(
             'Emissão de pedidos',
             style: TextStyle(
-              color: Colors.blue, // Cor azul
+              color: Colors.blue,
               fontWeight: FontWeight.bold,
               fontSize: 18.0,
             ),
@@ -57,7 +57,7 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
                 'assets/images/user.png',
                 width: 50,
                 height: 50,
-                fit: BoxFit.cover, // Para preencher todo o espaço do círculo
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -138,126 +138,6 @@ class MenuLateralEsquerdo extends StatelessWidget {
   }
 }
 
-// class MenuLateralDireito extends StatelessWidget {
-
-//   final VendedorDAO _vendedorDAO = VendedorDAO();
-//   List<Vendedor> vendedores = [];
-
-//   @override
-//   void initState() {
-//     // super.initState();
-
-//     _loadVendedores();
-//   }
-
-//   void _loadVendedores() async {
-//     List<Vendedor> vendedores = await _vendedorDAO.selectAll();
-//   }
-
-//   String? usuarioLogado = vendedores[0].nome;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: ListView(
-//         padding: EdgeInsets.zero,
-//         children: <Widget>[
-//           DrawerHeader(
-//             decoration: BoxDecoration(
-//               color: Colors.blue,
-//             ),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: <Widget>[
-//                 Row(
-//                   children: [
-//                     IconButton(
-//                       icon: CircleAvatar(
-//                         radius: 30,
-//                         backgroundColor: Colors.grey[300],
-//                         child: ClipOval(
-//                           child: Image.asset(
-//                             'assets/images/user.png',
-//                             width: 75,
-//                             height: 75,
-//                             fit: BoxFit
-//                                 .cover, // Para preencher todo o espaço do círculo
-//                           ),
-//                         ),
-//                       ),
-//                       onPressed: () {
-//                         Scaffold.of(context).openEndDrawer();
-//                       },
-//                     ),
-//                     SizedBox(
-//                         width:
-//                             15), // Adiciona um espaço de 15 pixels entre o avatar e o texto
-//                     Column(
-//                       children: [
-//                         Text(
-//                           'Gerente',
-//                           style: TextStyle(
-//                             color: Colors.grey[800], // Cor preta mais fraca
-//                             fontSize: 16.0, // Tamanho de fonte um pouco menor
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         Text(
-//                           'Coppi',
-//                           style: TextStyle(
-//                             color: Colors.white,
-//                             fontSize: 20.0,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 )
-//               ],
-//             ),
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.notifications),
-//             title: Text('Notificações'),
-//             onTap: () {
-//               // Adicione aqui a função para as notificações
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.edit),
-//             title: Text('Editar Conta'),
-//             onTap: () {
-//               // Adicione aqui a função para editar a conta
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.help),
-//             title: Text('Ajuda e Suporte'),
-//             onTap: () {
-//               // Adicione aqui a função para ajuda e suporte
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.settings),
-//             title: Text('Opções'),
-//             onTap: () {
-//               // Adicione aqui a função para ir para a tela de opções
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.exit_to_app),
-//             title: Text('Sair'),
-//             onTap: () {
-//               // Adicione aqui a função para sair
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 class MenuLateralDireito extends StatelessWidget {
   final VendedorDAO _vendedorDAO = VendedorDAO();
 
@@ -308,18 +188,14 @@ class MenuLateralDireito extends StatelessWidget {
                               Scaffold.of(context).openEndDrawer();
                             },
                           ),
-                          const SizedBox(
-                              width:
-                                  15), // Adiciona um espaço de 15 pixels entre o avatar e o texto
+                          const SizedBox(width: 15),
                           Column(
                             children: [
                               Text(
                                 'Gerente',
                                 style: TextStyle(
-                                  color:
-                                      Colors.grey[800], // Cor preta mais fraca
-                                  fontSize:
-                                      16.0, // Tamanho de fonte um pouco menor
+                                  color: Colors.grey[800],
+                                  fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
