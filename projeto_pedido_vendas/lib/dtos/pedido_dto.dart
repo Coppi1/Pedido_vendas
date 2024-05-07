@@ -40,4 +40,15 @@ class PedidoDTO {
       'vendedor': vendedor.toJson(),
     };
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'dataPedido': dataPedido,
+      'observacao': observacao,
+      'formaPagamento': formaPagamento,
+      'cliente': cliente.toMap(),
+      'vendedor': vendedor.toMap(),
+    };
+  }
 }
