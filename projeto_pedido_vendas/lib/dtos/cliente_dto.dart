@@ -54,4 +54,15 @@ class ClienteDTO {
           : null,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nome': nome,
+      'endereco': endereco,
+      'cidade': cidade,
+      'nmrCpfCnpj': nmrCpfCnpj,
+      'vendedor': vendedor != null ? vendedor!.toMap() : null,
+    };
+  }
 }

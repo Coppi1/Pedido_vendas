@@ -26,4 +26,10 @@ class VendedorDTO {
       nome: vendedor.nome,
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nome': nome,
+    };
+  }
 }
