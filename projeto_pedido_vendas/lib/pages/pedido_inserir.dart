@@ -1,13 +1,17 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
+import 'package:projeto_pedido_vendas/pages/pedido_produtos.dart';
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
-import 'package:projeto_pedido_vendas/repository/forma_pagamento.dart';
+import 'package:projeto_pedido_vendas/repository/forma_pagamento_dao.dart';
+import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
 class PedidoCadastro extends StatefulWidget {
@@ -30,13 +34,14 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
   FormaPagamentoDTO? _formaPagamentoSelecionado;
   List<FormaPagamentoDTO> _formasPagamentoLista = [];
 
+  final PedidoDAO _pedidoDAO = PedidoDAO();
+
   @override
   void initState() {
     super.initState();
     _loadClientes();
     _loadVendedores();
-    _vendedorSelecionado =
-        _vendedoresLista.length > 1 ? _vendedoresLista[1] : null;
+    _loadFormasPagamento();
   }
 
   void _loadVendedores() async {
@@ -46,6 +51,12 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
         .toList();
     setState(() {
       _vendedoresLista = vendedorDTO;
+      // Definindo o vendedor selecionado como o vendedor do índice 1, se houver pelo menos dois vendedores
+      if (_vendedoresLista.length > 1) {
+        _vendedorSelecionado = _vendedoresLista[1];
+      }
+      debugPrint(
+          'Vendedor selecionado: $_vendedorSelecionado $_vendedoresLista');
     });
   }
 
@@ -59,56 +70,68 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
   }
 
   void _loadFormasPagamento() async {
-    List<FormaPagamento> formasPagamento = await _formaPagamentoDAO.selectAll();
-    List<FormaPagamentoDTO> formasPagamentoDTO = formasPagamento
-        .map((formaPagamento) =>
-            FormaPagamentoDTO.fromFormaPagamento(formaPagamento))
-        .toList();
+    List<FormaPagamentoDTO> formasPagamento =
+        await _formaPagamentoDAO.selectAll();
     setState(() {
-      _formasPagamentoLista = formasPagamentoDTO;
+      _formasPagamentoLista = formasPagamento;
     });
   }
 
-     void _emitirPedido(BuildContext context) async {
-     if (_clienteSelecionado != null &&
-         _vendedorSelecionado != null) {
-       
-       DateTime dataPedido = DateTime.now(); // Definindo a data de hoje
-       
-       VendedorDTO vendedor =
-           _vendedoresLista[0];  // Pegando o primeiro vendedor da lista
+  void _emitirPedido(BuildContext context) async {
+    debugPrint('_emitirPedido chamado');
+    debugPrint('Cliente selecionado: $_clienteSelecionado');
+    debugPrint('Vendedor selecionado: $_vendedorSelecionado');
+    debugPrint('Forma de pagamento selecionada: $_formaPagamentoSelecionado');
+    if (_clienteSelecionado != null &&
+        _vendedorSelecionado != null &&
+        _formaPagamentoSelecionado != null) {
+      try {
+        // Criando o DTO de pedido
+        PedidoDTO pedido = PedidoDTO(
+          dataPedido: DateTime.now(),
+          observacao: "",
+          formaPagamento: _formaPagamentoSelecionado!,
+          cliente: _clienteSelecionado!,
+          vendedor: _vendedorSelecionado!,
+        );
 
-     
-      //  Criando o DTO de pedido
-       PedidoDTO pedido = PedidoDTO(
-         id: 1,
-         dataPedido: dataPedido,
-         observacao: "",  Observação inicial vazia
-         formaPagamento:
-             _formaPagamentoSelecionada ?? "",  Forma de pagamento selecionada
-         itens: itens,
-         valorTotal: _calcularTotal(),
-         cliente: _clienteSelecionado!
-             .toCliente(),  Convertendo o cliente selecionado para o modelo Cliente
-         vendedor: _vendedorSelecionado!
-             .toVendedor(),  Convertendo o vendedor selecionado para o modelo Vendedor
-         pagamento: pagamento.toPagamento(),  Passando o DTO de pagamento
-       );
+        // Salvar o pedido no banco de dados
+        await _pedidoDAO.insert(pedido);
 
-       // Salvar o pedido no banco de dados ou fazer qualquer outra operação necessária
-       await _pedidoDAO.insert(pedido);
+        // Exibir um alerta com os dados do pedido
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Pedido Emitido"),
+              content: Text(
+                  "Pedido emitido com sucesso:\n\nData: ${pedido.dataPedido}\nCliente: ${pedido.cliente.nome}\nVendedor: ${pedido.vendedor.nome}\nForma de Pagamento: ${pedido.formaPagamento.descricao}"),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fecha o diálogo
+                  },
+                ),
+              ],
+            );
+          },
+        );
 
-      //  Adicionar um log para verificar se o método está sendo chamado corretamente
-       print('Pedido emitido: $pedido');
-
-      //  Navegar para a tela de pagamento, passando o pedido como argumento
-       Navigator.of(context).push(
-         MaterialPageRoute(
-           builder: (context) => PagamentoPage(pedido: pedido),
-         ),
-       );
-     }
-   }
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PedidoProdutosPage(pedido: pedido),
+          ),
+        );
+      } catch (e) {
+        // Trate o erro aqui, por exemplo, mostrando uma mensagem de erro ao usuário
+        debugPrint('Erro ao emitir o pedido: $e');
+        // Você pode querer mostrar um diálogo de erro aqui também
+      }
+    } else {
+      debugPrint('Um dos campos necessários está nulo');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +174,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 20.0),
                 DropdownButtonFormField<FormaPagamentoDTO>(
                   value: _formaPagamentoSelecionado,
                   onChanged: (FormaPagamentoDTO? formaPagamento) {
@@ -170,7 +194,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 20.0),
                 TextFormField(
                   maxLines: 3,
                   decoration: InputDecoration(
@@ -191,7 +215,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
                 const SizedBox(height: 50.0),
                 OutlinedButton(
                   onPressed: () => _emitirPedido(context),
-                  child: const Text('Emitir Pedido'),
+                  child: const Text('Iniciar Pedido'),
                 ),
               ],
             ),

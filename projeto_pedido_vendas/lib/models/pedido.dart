@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
+import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/pagamento.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
@@ -9,7 +10,7 @@ class Pedido {
   int? id;
   DateTime dataPedido;
   String observacao;
-  String formaPagamento;
+  FormaPagamento formaPagamento;
   Cliente cliente;
   Vendedor vendedor;
 

@@ -8,7 +8,7 @@ import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
-import 'package:projeto_pedido_vendas/repository/itens_pedido.dart';
+import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
