@@ -55,8 +55,6 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
       if (_vendedoresLista.length > 1) {
         _vendedorSelecionado = _vendedoresLista[1];
       }
-      debugPrint(
-          'Vendedor selecionado: $_vendedorSelecionado $_vendedoresLista');
     });
   }
 
@@ -78,10 +76,10 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
   }
 
   void _emitirPedido(BuildContext context) async {
-    debugPrint('_emitirPedido chamado');
-    debugPrint('Cliente selecionado: $_clienteSelecionado');
-    debugPrint('Vendedor selecionado: $_vendedorSelecionado');
-    debugPrint('Forma de pagamento selecionada: $_formaPagamentoSelecionado');
+    // debugPrint('_emitirPedido chamado');
+    // debugPrint('Cliente selecionado: $_clienteSelecionado');
+    // debugPrint('Vendedor selecionado: $_vendedorSelecionado');
+    // debugPrint('Forma de pagamento selecionada: $_formaPagamentoSelecionado');
     if (_clienteSelecionado != null &&
         _vendedorSelecionado != null &&
         _formaPagamentoSelecionado != null) {
@@ -95,28 +93,11 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
           vendedor: _vendedorSelecionado!,
         );
 
-        // Salvar o pedido no banco de dados
-        await _pedidoDAO.insert(pedido);
+        // Salvar o pedido no banco de dados e obter o ID gerado
+        int idGerado = await _pedidoDAO.insert(pedido);
 
-        // Exibir um alerta com os dados do pedido
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Pedido Emitido"),
-              content: Text(
-                  "Pedido emitido com sucesso:\n\nData: ${pedido.dataPedido}\nCliente: ${pedido.cliente.nome}\nVendedor: ${pedido.vendedor.nome}\nForma de Pagamento: ${pedido.formaPagamento.descricao}"),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Fecha o diálogo
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        // Atualizar o PedidoDTO com o ID gerado
+        pedido.id = idGerado;
 
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -215,7 +196,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
                 const SizedBox(height: 50.0),
                 OutlinedButton(
                   onPressed: () => _emitirPedido(context),
-                  child: const Text('Iniciar Pedido'),
+                  child: const Text('Prosseguir ao Carrinho'),
                 ),
               ],
             ),

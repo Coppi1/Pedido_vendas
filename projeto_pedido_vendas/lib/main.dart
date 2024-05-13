@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/models/pedido.dart';
-import 'package:projeto_pedido_vendas/pages/pedido_emitir.dart';
 import 'package:projeto_pedido_vendas/pages/pedido_inserir.dart';
 import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart';
 import 'package:projeto_pedido_vendas/util/initialize_database.dart';

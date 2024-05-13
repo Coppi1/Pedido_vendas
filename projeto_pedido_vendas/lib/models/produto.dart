@@ -1,12 +1,12 @@
 import 'dart:convert';
 
+import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
 
 class Produto {
   int? id;
   String? marca;
   String? unidade;
-  String? tipoProduto;
   String nome;
   double? valor;
   CategoriaProduto? categoriaProduto;
@@ -20,7 +20,6 @@ class Produto {
       {this.id,
       required this.marca,
       required this.unidade,
-      required this.tipoProduto,
       required this.nome,
       required this.valor,
       this.categoriaProduto});
@@ -30,7 +29,6 @@ class Produto {
       id: json['id'],
       marca: json['marca'],
       unidade: json['unidade'],
-      tipoProduto: json['tipoProduto'],
       nome: json['nome'],
       valor: json['valor'],
       categoriaProduto: json['categoriaProduto'] != null
@@ -44,11 +42,23 @@ class Produto {
       'id': id,
       'marca': marca,
       'unidade': unidade,
-      'tipoProduto': tipoProduto,
       'nome': nome,
       'valor': valor,
       'categoriaProduto':
           categoriaProduto != null ? categoriaProduto!.toJson() : null,
     };
+  }
+
+  factory Produto.fromDto(ProdutoDTO dto) {
+    return Produto(
+      id: dto.id,
+      marca: dto.marca,
+      unidade: dto.unidade,
+      nome: dto.nome ?? '',
+      valor: dto.valor,
+      categoriaProduto: dto.categoriaProduto != null
+          ? CategoriaProduto.fromJson(dto.categoriaProduto!.toJson())
+          : null,
+    );
   }
 }

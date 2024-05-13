@@ -6,12 +6,18 @@ Future<void> initializeDatabase() async {
   // Obter uma instância do banco de dados
   final db = await Conexao.instance.database;
 
+  // await db.execute('ALTER TABLE pedido ADD COLUMN formaPagamentoId INTEGER');
+
+  // Adicionando a coluna clienteId à tabela pedido
+  // await db.execute('ALTER TABLE pedido ADD COLUMN vendedorId INTEGER');
+
   List<String> tableNames = [
     'cliente',
     'vendedor',
     'produto',
     'forma_pagamento',
-    'pedido'
+    'pedido',
+    'categoria_produto'
   ];
 
   // Excluir todas as tabelas existentes
@@ -35,11 +41,16 @@ Future<void> initializeDatabase() async {
   // Verificar se a tabela pedido já existe
   bool pedidoTableExists = await Conexao.instance.tableExists('pedido');
 
+  bool categoriaProdutoExists =
+      await Conexao.instance.tableExists('categoria_produto');
+
+  bool itensPedidoExists = await Conexao.instance.tableExists('itens_pedido');
+
   // Criar a tabela pedido se ela não existir
   if (!pedidoTableExists) {
     await db.execute('''
     CREATE TABLE pedido (
-      id INTEGER PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       dataPedido INTEGER,
       observacao TEXT,
       formaPagamentoId INTEGER,
@@ -49,10 +60,19 @@ Future<void> initializeDatabase() async {
  ''');
   }
 
+  if (!categoriaProdutoExists) {
+    await db.execute('''
+    CREATE TABLE categoria_produto (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      descricao TEXT
+    )
+ ''');
+  }
+
   if (!clienteTableExists) {
     await db.execute('''
       CREATE TABLE cliente (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         endereco TEXT,
         cidade TEXT,
@@ -65,7 +85,7 @@ Future<void> initializeDatabase() async {
   if (!vendedorTableExists) {
     await db.execute('''
       CREATE TABLE vendedor (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT
       )
     ''');
@@ -74,10 +94,10 @@ Future<void> initializeDatabase() async {
   if (!produtoTableExists) {
     await db.execute('''
       CREATE TABLE produto (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         marca TEXT,
         unidade TEXT,
-        categoriaProdutoId I,
+        categoriaProdutoId INTEGER,
         nome TEXT,
         valor REAL
       )
@@ -87,7 +107,16 @@ Future<void> initializeDatabase() async {
   if (!formaPagamentoTableExists) {
     await db.execute('''
       CREATE TABLE forma_pagamento (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        descricao TEXT
+      )
+    ''');
+  }
+
+  if (!itensPedidoExists) {
+    await db.execute('''
+      CREATE TABLE itens_pedido (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         descricao TEXT
       )
     ''');
@@ -106,22 +135,6 @@ Future<void> initializeDatabase() async {
     'cidade': 'São Paulo',
     'nmrCpfCnpj': '123.456.789-00',
     'vendedorId': 1,
-  });
-
-  await db.insert('produto', {
-    'marca': 'Marca1',
-    'unidade': 'Unidade1',
-    'tipoProduto': 'Tipo1',
-    'nome': 'Produto1',
-    'valor': 10.50,
-  });
-
-  await db.insert('produto', {
-    'marca': 'Marca2',
-    'unidade': 'Unidade2',
-    'tipoProduto': 'Tipo2',
-    'nome': 'Produto2',
-    'valor': 20.75,
   });
 
   await db.insert('cliente', {
@@ -145,5 +158,37 @@ Future<void> initializeDatabase() async {
 
   await db.insert('forma_pagamento', {
     'descricao': 'Boleto Bancário',
+  });
+
+  await db.insert('categoria_produto', {
+    'descricao': 'Limpeza',
+  });
+
+  await db.insert('categoria_produto', {
+    'descricao': 'Perfumaria',
+  });
+
+  await db.insert('categoria_produto', {
+    'descricao': 'Hidraulica',
+  });
+
+  await db.insert('categoria_produto', {
+    'descricao': 'Elétrica',
+  });
+
+  await db.insert('produto', {
+    'marca': 'Marca1',
+    'unidade': 'Unidade1',
+    'categoriaProdutoId': 1,
+    'nome': 'Produto1',
+    'valor': 10.50,
+  });
+
+  await db.insert('produto', {
+    'marca': 'Marca2',
+    'unidade': 'Unidade2',
+    'categoriaProdutoId': 2,
+    'nome': 'Produto2',
+    'valor': 20.75,
   });
 }
