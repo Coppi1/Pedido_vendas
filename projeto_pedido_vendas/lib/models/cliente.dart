@@ -6,7 +6,7 @@ class Cliente {
   String? endereco;
   String? cidade;
   String? nmrCpfCnpj;
-  Vendedor? vendedor; // Modifique o tipo aqui
+  Vendedor? vendedor;
 
   Cliente({
     this.id,
@@ -17,27 +17,26 @@ class Cliente {
     this.vendedor,
   });
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'cidade': cidade,
-      'vendedor':
-          vendedor?.toJson(), // Convertendo o vendedor para JSON, se existir
       'nome': nome,
       'endereco': endereco,
+      'cidade': cidade,
       'nmrCpfCnpj': nmrCpfCnpj,
+      'vendedor': vendedor != null ? vendedor!.toMap() : null,
     };
   }
 
   factory Cliente.fromJson(Map<String, dynamic> json) {
     return Cliente(
       id: json['id'],
-      cidade: json['cidade'],
-      vendedor:
-          json['vendedor'] != null ? Vendedor.fromJson(json['vendedor']) : null,
       nome: json['nome'],
       endereco: json['endereco'],
+      cidade: json['cidade'],
       nmrCpfCnpj: json['nmrCpfCnpj'],
+      vendedor:
+          json['vendedor'] != null ? Vendedor.fromJson(json['vendedor']) : null,
     );
   }
 }

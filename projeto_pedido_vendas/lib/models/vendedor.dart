@@ -6,17 +6,21 @@ class Vendedor {
 
   Vendedor({this.id, this.nome});
 
-  factory Vendedor.fromJson(Map<String, dynamic> json) {
-    return Vendedor(
-      id: json["id"],
-      nome: json['nome'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'nome': nome,
     };
+  }
+
+  String toJson() {
+    return jsonEncode(toMap());
+  }
+
+  factory Vendedor.fromJson(Map<String, dynamic> json) {
+    return Vendedor(
+      id: json['id'],
+      nome: json['nome'],
+    );
   }
 }

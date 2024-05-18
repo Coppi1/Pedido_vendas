@@ -7,10 +7,19 @@ class PedidoDAO {
   Future<Database> get _db async => await Conexao.instance.database;
 
   // Método para inserir um pedido no banco de dados
-  Future<void> insert(PedidoDTO pedido) async {
+  // Future<void> insert(PedidoDTO pedido) async {
+  //   final db = await _db;
+  //   await db.insert('pedido', pedido.toMap(),
+  //       conflictAlgorithm: ConflictAlgorithm.replace);
+
+  // }
+
+  Future<int> insert(PedidoDTO pedido) async {
     final db = await _db;
-    await db.insert('pedido', pedido.toMap(),
+    // A função insert retorna o ID da linha inserida
+    int id = await db.insert('pedido', pedido.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
   }
 
   // Método para atualizar um pedido no banco de dados

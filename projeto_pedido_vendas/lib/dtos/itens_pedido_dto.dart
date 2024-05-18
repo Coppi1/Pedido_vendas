@@ -1,32 +1,59 @@
+import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart'; // Certifique-se de importar a classe Produto aqui
+import 'package:projeto_pedido_vendas/models/produto.dart';
 
 class ItensDTO {
-  List<Map<String, dynamic>>
-      produtos; // Lista de Mapas para representar os produtos
+  int? id;
+  PedidoDTO? pedido;
+  ProdutoDTO? produto; // Usando ProdutoDTO para manter a consistência com o DTO
+  int? quantidade;
+  double? valorTotal;
 
   ItensDTO({
-    required this.produtos,
+    this.id,
+    this.pedido,
+    this.produto,
+    this.quantidade,
+    this.valorTotal,
   });
 
-  // Método para converter de JSON para DTO
-  factory ItensDTO.fromJson(List<dynamic> json) {
-    final List<Map<String, dynamic>> produtosList =
-        json.cast<Map<String, dynamic>>();
-
+  factory ItensDTO.fromJson(Map<String, dynamic> json) {
     return ItensDTO(
-      produtos: produtosList,
+      id: json['id'],
+      pedido: PedidoDTO.fromJson(json['pedido']),
+      produto:
+          ProdutoDTO.fromJson(json['produto']), // Deserializando o ProdutoDTO
+      quantidade: json['quantidade'],
+      valorTotal: json['valorTotal'],
     );
   }
 
-  Itens toItens() {
-    List<Produto> listaProdutos =
-        produtos.map((produtoJson) => Produto.fromJson(produtoJson)).toList();
-    return Itens(produtos: listaProdutos);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'pedidoId': pedido?.toJson(),
+      'produto': produto?.toJson(), // Serializando o ProdutoDTO
+      'quantidade': quantidade,
+      'valorTotal': valorTotal,
+    };
   }
 
-  // Método para converter de DTO para JSON
-  List<dynamic> toJson() {
-    return produtos;
+  factory ItensDTO.fromItens(Itens itens) {
+    // Verifica se itens.produto é nulo e decide como lidar com isso
+    ProdutoDTO? produto = itens.produto != null
+        ? ProdutoDTO.fromItens(itens.produto!)
+        : ProdutoDTO();
+
+    PedidoDTO? pedido =
+        itens.pedido != null ? PedidoDTO.fromItens(itens.pedido!) : PedidoDTO();
+
+    return ItensDTO(
+      id: itens.id,
+      pedido: pedido,
+      produto: produto, // Usa o ProdutoDTO criado ou padrão
+      quantidade: itens.quantidade,
+      valorTotal: itens.valorTotal,
+    );
   }
 }
