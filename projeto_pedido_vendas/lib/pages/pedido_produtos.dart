@@ -6,6 +6,7 @@ import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
+import 'package:projeto_pedido_vendas/pages/appBar.dart';
 import 'package:projeto_pedido_vendas/repository/categoria_produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 
@@ -97,137 +98,152 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carrinho de Produtos'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Pedido #${widget.pedido.id}',
-                style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 8),
-            Text('Cliente: ${widget.pedido.cliente?.nome}',
-                style: const TextStyle(fontSize: 18)),
-            Text('Vendedor: ${widget.pedido.vendedor?.nome}',
-                style: const TextStyle(fontSize: 18)),
-            Text(
+      appBar: MinhaAppBar(),
+      drawer: const MenuLateralEsquerdo(),
+      endDrawer: MenuLateralDireito(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pedido #${widget.pedido.id}'),
+              SizedBox(height: 10),
+              Text(
+                'Cliente: ${widget.pedido.cliente?.nome}',
+              ),
+              Text(
+                'Vendedor: ${widget.pedido.vendedor?.nome}',
+              ),
+              Text(
                 'Forma de Pagamento: ${widget.pedido.formaPagamento?.descricao}',
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<CategoriaProdutoDTO>(
-              hint: const Text('Selecione uma categoria'),
-              value: _categoriaSelecionada,
-              onChanged: (CategoriaProdutoDTO? novaCategoria) {
-                setState(() {
-                  _categoriaSelecionada = novaCategoria;
-                  _produtos.clear();
-                  if (novaCategoria != null) {
-                    _carregarProdutosParaCategoria(novaCategoria.id ?? -1);
-                  } else {
-                    _carregarProdutos();
-                  }
-                });
-              },
-              items: _categorias.map((categoria) {
-                final categoriaDTO = CategoriaProdutoDTO(
-                  id: categoria.id,
-                  descricao: categoria.descricao,
-                );
-                return DropdownMenuItem<CategoriaProdutoDTO>(
-                  value: categoriaDTO,
-                  child: Text(categoriaDTO.descricao ?? ''),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Categoria',
-                border: OutlineInputBorder(),
               ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<ProdutoDTO>(
-              hint: const Text('Selecione um produto'),
-              value: _produtos.isEmpty ? null : _produtos.first,
-              onChanged: (ProdutoDTO? produto) {
-                if (produto != null) {
-                  _adicionarProdutoAoCarrinho(produto, _quantidades);
-                }
-              },
-              items: _produtos.map((ProdutoDTO produto) {
-                return DropdownMenuItem<ProdutoDTO>(
-                  value: produto,
-                  child: Text(produto.nome ?? ''),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Produto',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () =>
-                  _adicionarProdutoAoCarrinho(_produtos.first, _quantidades),
-              child: const Text('Adicionar ao Carrinho'),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _itensSelecionados.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 4.0,
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      title: Text(_itensSelecionados[index].produto?.nome ??
-                          'Nome do Produto'),
-                      subtitle: Row(
-                        children: [
-                          const Text('Quantidade: '),
-                          SizedBox(
-                            width: 50,
-                            child: TextFormField(
-                              initialValue: _quantidades.toString(),
-                              onChanged: (value) {
-                                _alterarQuantidade(
-                                    index, int.tryParse(value) ?? 1);
-                              },
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 70,
-                          ),
-                          Text(
-                            'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}',
-                          )
-                        ],
-                      ),
-                    ),
-                  );
+              SizedBox(height: 20),
+              DropdownButtonFormField<CategoriaProdutoDTO>(
+                hint: const Text('Selecione uma categoria'),
+                value: _categoriaSelecionada,
+                onChanged: (CategoriaProdutoDTO? novaCategoria) {
+                  setState(() {
+                    _categoriaSelecionada = novaCategoria;
+                    _produtos.clear();
+                    if (novaCategoria != null) {
+                      _carregarProdutosParaCategoria(novaCategoria.id ?? -1);
+                    } else {
+                      _carregarProdutos();
+                    }
+                  });
                 },
-              ),
-            ),
-            const SizedBox(height: 13.0),
-            Card(
-              elevation: 4.0,
-              margin: const EdgeInsets.all(2.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Total: R\$ ${_calcularTotal().toStringAsFixed(2)}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                items: _categorias.map((categoria) {
+                  final categoriaDTO = CategoriaProdutoDTO(
+                    id: categoria.id,
+                    descricao: categoria.descricao,
+                  );
+                  return DropdownMenuItem<CategoriaProdutoDTO>(
+                    value: categoriaDTO,
+                    child: Text(categoriaDTO.descricao ?? ''),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ),
-            const SizedBox(height: 50.0),
-            OutlinedButton(
-              onPressed: () => _fecharPedido(context),
-              child: const Text('Fechar Pedido'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              DropdownButtonFormField<ProdutoDTO>(
+                hint: const Text('Selecione um produto'),
+                value: _produtos.isEmpty ? null : _produtos.first,
+                onChanged: (ProdutoDTO? produto) {
+                  if (produto != null) {
+                    _adicionarProdutoAoCarrinho(produto, _quantidades);
+                  }
+                },
+                items: _produtos.map((ProdutoDTO produto) {
+                  return DropdownMenuItem<ProdutoDTO>(
+                    value: produto,
+                    child: Text(produto.nome ?? ''),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  labelText: 'Produto',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: Icon(Icons.shopping_cart),
+                label: Text('Adicionar ao Carrinho'),
+                onPressed: () =>
+                    _adicionarProdutoAoCarrinho(_produtos.first, _quantidades),
+                style: ElevatedButton.styleFrom(
+                  primary: Color.fromARGB(255, 143, 205, 255),
+                  onPrimary: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 200, // Adjust the height according to your needs
+                    child: ListView.builder(
+                      itemCount: _itensSelecionados.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 4.0,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text(
+                                _itensSelecionados[index].produto?.nome ??
+                                    'Nome do Produto'),
+                            subtitle: Row(
+                              children: [
+                                const Text('Quantidade: '),
+                                SizedBox(
+                                  width: 50,
+                                  child: TextFormField(
+                                    initialValue: _quantidades.toString(),
+                                    onChanged: (value) {
+                                      _alterarQuantidade(
+                                          index, int.tryParse(value) ?? 1);
+                                    },
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                SizedBox(width: 70),
+                                Text(
+                                    'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 13.0),
+              SizedBox(height: 20),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child:
+                      Text('Total: R\$ ${_calcularTotal().toStringAsFixed(2)}'),
+                ),
+              ),
+              SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  child: Text('Fechar Pedido'),
+                  onPressed: () => _fecharPedido(context),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red,
+                    onPrimary: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
