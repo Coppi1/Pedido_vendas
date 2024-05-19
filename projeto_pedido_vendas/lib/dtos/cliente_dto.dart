@@ -38,7 +38,7 @@ class ClienteDTO {
       'endereco': endereco,
       'cidade': cidade,
       'nmrCpfCnpj': nmrCpfCnpj,
-      'vendedor': vendedor != null ? vendedor!.toJson() : null,
+      'vendedor': vendedor?.toJson(),
     };
   }
 
@@ -62,7 +62,7 @@ class ClienteDTO {
       'endereco': endereco,
       'cidade': cidade,
       'nmrCpfCnpj': nmrCpfCnpj,
-      'vendedor': vendedor != null ? vendedor!.toMap() : null,
+      'vendedor': vendedor?.toMap(),
     };
   }
 }

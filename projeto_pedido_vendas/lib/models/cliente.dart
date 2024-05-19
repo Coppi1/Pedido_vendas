@@ -24,7 +24,7 @@ class Cliente {
       'endereco': endereco,
       'cidade': cidade,
       'nmrCpfCnpj': nmrCpfCnpj,
-      'vendedor': vendedor != null ? vendedor!.toMap() : null,
+      'vendedor': vendedor?.toMap(),
     };
   }
 

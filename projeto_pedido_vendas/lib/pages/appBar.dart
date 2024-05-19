@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
@@ -79,14 +78,14 @@ class MenuLateralEsquerdo extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
+          DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Color.fromARGB(64, 0, 0, 250), // Azul com 50% de transparência
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+              children: const <Widget>[
                 Text(
                   'Pedido Ágil',
                   style: TextStyle(
@@ -178,8 +177,8 @@ class MenuLateralDireito extends StatelessWidget {
                               child: ClipOval(
                                 child: Image.asset(
                                   'assets/images/user.png',
-                                  width: 75,
-                                  height: 75,
+                                  width: 50,
+                                  height: 50,
                                   fit: BoxFit.cover,
                                 ),
                               ),

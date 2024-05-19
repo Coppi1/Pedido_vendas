@@ -1,11 +1,9 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
-import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
 import 'package:projeto_pedido_vendas/pages/pedido_produtos.dart';
@@ -172,7 +170,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
                   }).toList(),
                   decoration: const InputDecoration(
                     labelText: 'Forma de Pagamento',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(), 
                   ),
                 ),
                 const SizedBox(height: 20.0),

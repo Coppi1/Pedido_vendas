@@ -1,7 +1,6 @@
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
-import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/pedido.dart';
 
 class PedidoDTO {

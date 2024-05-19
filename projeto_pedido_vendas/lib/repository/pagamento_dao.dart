@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart';
-import 'package:projeto_pedido_vendas/models/pagamento.dart';
 import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
 

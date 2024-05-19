@@ -1,4 +1,3 @@
-import 'package:projeto_pedido_vendas/models/pedido.dart';
 
 class PagamentoDTO {
   int? id;

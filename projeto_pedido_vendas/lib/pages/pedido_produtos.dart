@@ -5,7 +5,6 @@ import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
-import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/repository/categoria_produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 
@@ -19,11 +18,11 @@ class PedidoProdutosPage extends StatefulWidget {
 }
 
 class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
-  List<ItensDTO> _itensPedido = [];
+  final List<ItensDTO> _itensPedido = [];
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
-  List<ItensDTO> _itensSelecionados = [];
+  final List<ItensDTO> _itensSelecionados = [];
   int _quantidades = 1; // Quantidade padrão para cada produto
 
   @override
@@ -197,7 +196,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 70,
                           ),
                           Text(
@@ -218,7 +217,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Total: R\$ ${_calcularTotal().toStringAsFixed(2)}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),

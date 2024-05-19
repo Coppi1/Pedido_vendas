@@ -1,7 +1,6 @@
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
-import '../models/vendedor.dart';
 
 class VendedorDAO {
   Future<Database> get _db async => await Conexao.instance.database;

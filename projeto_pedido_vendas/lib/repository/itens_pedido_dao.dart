@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
-import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 
 class ItensDAO {
   Future<Database> get _db async => await Conexao.instance.database;

@@ -1,7 +1,6 @@
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart';
 
 class ItensDTO {
   int? id;
