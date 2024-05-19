@@ -1,25 +1,31 @@
+import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
+import 'package:projeto_pedido_vendas/models/cliente.dart';
+import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
+import 'package:projeto_pedido_vendas/models/produto.dart';
+import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
-class ItensDTO {
+class ItensPedidoDTO {
   int? id;
-  int? pedidoId;
-  int? produtoId;
+  PedidoDTO pedido;
+  ProdutoDTO produto;
   int? quantidade;
   double? valorTotal;
 
-  ItensDTO({
+  ItensPedidoDTO({
     this.id,
-    this.pedidoId,
-    this.produtoId,
+    required this.pedido,
+    required this.produto,
     this.quantidade,
     this.valorTotal,
   });
 
-  factory ItensDTO.fromJson(Map<String, dynamic> json) {
-    return ItensDTO(
+  factory ItensPedidoDTO.fromJson(Map<String, dynamic> json) {
+    return ItensPedidoDTO(
       id: json['id'],
-      pedidoId: json['pedidoId'],
-      produtoId: json['produtoId'],
+      pedido: PedidoDTO.fromJson(json['pedido']),
+      produto: ProdutoDTO.fromJson(json['produto']),
       quantidade: json['quantidade'],
       valorTotal: json['valorTotal'],
     );
@@ -28,20 +34,10 @@ class ItensDTO {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'pedidoId': pedidoId,
-      'produtoId': produtoId,
+      'pedidoId': pedido?.toJson(),
+      'produto': produto?.toJson(),
       'quantidade': quantidade,
       'valorTotal': valorTotal,
     };
-  }
-
-  factory ItensDTO.fromItens(Itens itens) {
-    return ItensDTO(
-      id: itens.id,
-      pedidoId: itens.pedido?.id,
-      produtoId: itens.produto?.id,
-      quantidade: itens.quantidade,
-      valorTotal: itens.valorTotal,
-    );
   }
 }

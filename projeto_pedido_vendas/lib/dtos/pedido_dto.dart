@@ -1,19 +1,21 @@
 import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
+import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
+import 'package:projeto_pedido_vendas/models/pedido.dart';
 
 class PedidoDTO {
   int? id;
-  String
-      dataPedido; // Mudança de DateTime para String para fins de serialização
-  String observacao;
-  String formaPagamento;
+  DateTime? dataPedido;
+  String? observacao;
+  FormaPagamentoDTO formaPagamento;
   ClienteDTO cliente;
   VendedorDTO vendedor;
 
   PedidoDTO({
     this.id,
-    required this.dataPedido,
-    required this.observacao,
+    this.dataPedido,
+    this.observacao,
     required this.formaPagamento,
     required this.cliente,
     required this.vendedor,
@@ -24,7 +26,7 @@ class PedidoDTO {
       id: json['id'],
       dataPedido: json['dataPedido'],
       observacao: json['observacao'],
-      formaPagamento: json['formaPagamento'],
+      formaPagamento: FormaPagamentoDTO.fromJson(json['formaPagamento']),
       cliente: ClienteDTO.fromJson(json['cliente']),
       vendedor: VendedorDTO.fromJson(json['vendedor']),
     );
@@ -35,7 +37,7 @@ class PedidoDTO {
       'id': id,
       'dataPedido': dataPedido,
       'observacao': observacao,
-      'formaPagamento': formaPagamento,
+      'formaPagamento': formaPagamento.toJson(),
       'cliente': cliente.toJson(),
       'vendedor': vendedor.toJson(),
     };
@@ -44,11 +46,23 @@ class PedidoDTO {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'dataPedido': dataPedido,
+      'dataPedido': dataPedido?.millisecondsSinceEpoch,
       'observacao': observacao,
-      'formaPagamento': formaPagamento,
-      'cliente': cliente.toMap(),
-      'vendedor': vendedor.toMap(),
+      'formaPagamentoId': formaPagamento.id,
+      'clienteId': cliente.id,
+      'vendedorId': vendedor.id,
     };
+  }
+
+  factory PedidoDTO.fromItens(Pedido pedido) {
+    return PedidoDTO(
+      id: pedido.id,
+      dataPedido: pedido.dataPedido,
+      observacao: pedido.observacao,
+      formaPagamento:
+          FormaPagamentoDTO.fromFormaPagamento(pedido.formaPagamento),
+      cliente: ClienteDTO.fromCliente(pedido.cliente),
+      vendedor: VendedorDTO.fromVendedor(pedido.vendedor),
+    );
   }
 }

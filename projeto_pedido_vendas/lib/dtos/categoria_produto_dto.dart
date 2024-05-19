@@ -27,4 +27,16 @@ class CategoriaProdutoDTO {
       descricao: categoriaProduto.descricao,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is CategoriaProdutoDTO &&
+        other.id == id &&
+        other.descricao == descricao;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ descricao.hashCode;
 }

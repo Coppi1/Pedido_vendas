@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
+
 class Vendedor {
   int? id;
   String? nome;
@@ -21,6 +23,13 @@ class Vendedor {
     return Vendedor(
       id: json['id'],
       nome: json['nome'],
+    );
+  }
+
+  factory Vendedor.fromVendedorDTO(VendedorDTO dto) {
+    return Vendedor(
+      id: dto.id,
+      nome: dto.nome,
     );
   }
 }
