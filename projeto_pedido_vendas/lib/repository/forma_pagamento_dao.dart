@@ -7,7 +7,6 @@ import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 class FormaPagamentoDAO {
   Future<Database> get _db async => await Conexao.instance.database;
 
-  // Método para inserir forma de pagamento no banco de dados
   Future<void> insert(FormaPagamentoDTO formaPagamento) async {
     final db = await _db;
     await db.insert(
@@ -17,7 +16,6 @@ class FormaPagamentoDAO {
     );
   }
 
-  // Método para atualizar forma de pagamento no banco de dados
   Future<void> update(FormaPagamentoDTO formaPagamento) async {
     final db = await _db;
     await db.update(
@@ -28,7 +26,6 @@ class FormaPagamentoDAO {
     );
   }
 
-  // Método para excluir forma de pagamento do banco de dados
   Future<void> delete(int id) async {
     final db = await _db;
     await db.delete(
@@ -38,7 +35,6 @@ class FormaPagamentoDAO {
     );
   }
 
-  // Método para selecionar todas as formas de pagamento armazenadas no banco de dados
   Future<List<FormaPagamentoDTO>> selectAll() async {
     final db = await _db;
     final List<Map<String, dynamic>> maps = await db.query('forma_pagamento');

@@ -56,17 +56,4 @@ class ProdutoDTO {
           : null,
     );
   }
-
-  factory ProdutoDTO.fromItens(Produto produto) {
-    return ProdutoDTO(
-      id: produto.id,
-      marca: produto.marca,
-      unidade: produto.unidade,
-      nome: produto.nome,
-      valor: produto.valor,
-      categoriaProduto: produto.categoriaProduto != null
-          ? CategoriaProdutoDTO.fromCategoriaProduto(produto.categoriaProduto!)
-          : null,
-    );
-  }
 }

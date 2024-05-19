@@ -9,7 +9,6 @@ import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
 import 'package:projeto_pedido_vendas/pages/pedido_produtos.dart';
-
 import 'package:projeto_pedido_vendas/repository/cliente_dao.dart';
 import 'package:projeto_pedido_vendas/repository/forma_pagamento_dao.dart';
 import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
@@ -52,7 +51,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
         .toList();
     setState(() {
       _vendedoresLista = vendedorDTO;
-      // Definindo o vendedor selecionado como o vendedor do índice 1, se houver pelo menos dois vendedores
+      // Definindo o vendedor selecionado como o vendedor do índice 1, (supondo que seja o vendedor logado)
       if (_vendedoresLista.length > 1) {
         _vendedorSelecionado = _vendedoresLista[1];
       }
@@ -77,15 +76,10 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
   }
 
   void _emitirPedido(BuildContext context) async {
-    // debugPrint('_emitirPedido chamado');
-    // debugPrint('Cliente selecionado: $_clienteSelecionado');
-    // debugPrint('Vendedor selecionado: $_vendedorSelecionado');
-    // debugPrint('Forma de pagamento selecionada: $_formaPagamentoSelecionado');
     if (_clienteSelecionado != null &&
         _vendedorSelecionado != null &&
         _formaPagamentoSelecionado != null) {
       try {
-        // Criando o DTO de pedido
         PedidoDTO pedido = PedidoDTO(
           dataPedido: DateTime.now(),
           observacao: "",
@@ -94,10 +88,8 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
           vendedor: _vendedorSelecionado!,
         );
 
-        // Salvar o pedido no banco de dados e obter o ID gerado
         int idGerado = await _pedidoDAO.insert(pedido);
 
-        // Atualizar o PedidoDTO com o ID gerado
         pedido.id = idGerado;
 
         Navigator.of(context).push(
@@ -106,9 +98,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
           ),
         );
       } catch (e) {
-        // Trate o erro aqui, por exemplo, mostrando uma mensagem de erro ao usuário
         debugPrint('Erro ao emitir o pedido: $e');
-        // Você pode querer mostrar um diálogo de erro aqui também
       }
     } else {
       debugPrint('Um dos campos necessários está nulo');

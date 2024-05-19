@@ -4,8 +4,7 @@ class PagamentoDTO {
   int? id;
   double valorTotal;
   double desconto;
-  String
-      dataVencimento; // Mudança de DateTime para String para fins de serialização
+  String dataVencimento;
   int? pedidoId;
 
   PagamentoDTO({

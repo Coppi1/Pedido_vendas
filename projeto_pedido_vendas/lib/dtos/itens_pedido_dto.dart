@@ -1,29 +1,31 @@
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
+import 'package:projeto_pedido_vendas/models/cliente.dart';
+import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
+import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
-class ItensDTO {
+class ItensPedidoDTO {
   int? id;
-  PedidoDTO? pedido;
-  ProdutoDTO? produto; // Usando ProdutoDTO para manter a consistência com o DTO
+  PedidoDTO pedido;
+  ProdutoDTO produto;
   int? quantidade;
   double? valorTotal;
 
-  ItensDTO({
+  ItensPedidoDTO({
     this.id,
-    this.pedido,
-    this.produto,
+    required this.pedido,
+    required this.produto,
     this.quantidade,
     this.valorTotal,
   });
 
-  factory ItensDTO.fromJson(Map<String, dynamic> json) {
-    return ItensDTO(
+  factory ItensPedidoDTO.fromJson(Map<String, dynamic> json) {
+    return ItensPedidoDTO(
       id: json['id'],
       pedido: PedidoDTO.fromJson(json['pedido']),
-      produto:
-          ProdutoDTO.fromJson(json['produto']), // Deserializando o ProdutoDTO
+      produto: ProdutoDTO.fromJson(json['produto']),
       quantidade: json['quantidade'],
       valorTotal: json['valorTotal'],
     );
@@ -33,27 +35,9 @@ class ItensDTO {
     return {
       'id': id,
       'pedidoId': pedido?.toJson(),
-      'produto': produto?.toJson(), // Serializando o ProdutoDTO
+      'produto': produto?.toJson(),
       'quantidade': quantidade,
       'valorTotal': valorTotal,
     };
-  }
-
-  factory ItensDTO.fromItens(Itens itens) {
-    // Verifica se itens.produto é nulo e decide como lidar com isso
-    ProdutoDTO? produto = itens.produto != null
-        ? ProdutoDTO.fromItens(itens.produto!)
-        : ProdutoDTO();
-
-    PedidoDTO? pedido =
-        itens.pedido != null ? PedidoDTO.fromItens(itens.pedido!) : PedidoDTO();
-
-    return ItensDTO(
-      id: itens.id,
-      pedido: pedido,
-      produto: produto, // Usa o ProdutoDTO criado ou padrão
-      quantidade: itens.quantidade,
-      valorTotal: itens.valorTotal,
-    );
   }
 }

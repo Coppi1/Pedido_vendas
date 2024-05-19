@@ -6,20 +6,19 @@ import 'package:projeto_pedido_vendas/models/pedido.dart';
 
 class PedidoDTO {
   int? id;
-  DateTime?
-      dataPedido; // Mudança de DateTime para String para fins de serialização
+  DateTime? dataPedido;
   String? observacao;
-  FormaPagamentoDTO? formaPagamento;
-  ClienteDTO? cliente;
-  VendedorDTO? vendedor;
+  FormaPagamentoDTO formaPagamento;
+  ClienteDTO cliente;
+  VendedorDTO vendedor;
 
   PedidoDTO({
     this.id,
     this.dataPedido,
     this.observacao,
-    this.formaPagamento,
-    this.cliente,
-    this.vendedor,
+    required this.formaPagamento,
+    required this.cliente,
+    required this.vendedor,
   });
 
   factory PedidoDTO.fromJson(Map<String, dynamic> json) {
@@ -38,9 +37,9 @@ class PedidoDTO {
       'id': id,
       'dataPedido': dataPedido,
       'observacao': observacao,
-      'formaPagamento': formaPagamento?.toJson(),
-      'cliente': cliente?.toJson(),
-      'vendedor': vendedor?.toJson(),
+      'formaPagamento': formaPagamento.toJson(),
+      'cliente': cliente.toJson(),
+      'vendedor': vendedor.toJson(),
     };
   }
 
@@ -49,24 +48,21 @@ class PedidoDTO {
       'id': id,
       'dataPedido': dataPedido?.millisecondsSinceEpoch,
       'observacao': observacao,
-      'formaPagamentoId': formaPagamento?.id,
-      'clienteId': cliente?.id,
-      'vendedorId': vendedor?.id,
+      'formaPagamentoId': formaPagamento.id,
+      'clienteId': cliente.id,
+      'vendedorId': vendedor.id,
     };
   }
 
   factory PedidoDTO.fromItens(Pedido pedido) {
     return PedidoDTO(
       id: pedido.id,
-      dataPedido: pedido
-          .dataPedido, // Ajuste conforme necessário para converter DateTime para String ou outro formato
+      dataPedido: pedido.dataPedido,
       observacao: pedido.observacao,
-      formaPagamento: FormaPagamentoDTO.fromFormaPagamento(pedido
-          .formaPagamento), // Supondo que FormaPagamento tenha uma factory similar
-      cliente: ClienteDTO.fromCliente(
-          pedido.cliente), // Supondo que Cliente tenha uma factory similar
-      vendedor: VendedorDTO.fromVendedor(
-          pedido.vendedor), // Supondo que Vendedor tenha uma factory similar
+      formaPagamento:
+          FormaPagamentoDTO.fromFormaPagamento(pedido.formaPagamento),
+      cliente: ClienteDTO.fromCliente(pedido.cliente),
+      vendedor: VendedorDTO.fromVendedor(pedido.vendedor),
     );
   }
 }

@@ -7,7 +7,9 @@ import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
+import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart';
 import 'package:projeto_pedido_vendas/repository/categoria_produto_dao.dart';
+import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
 
 class PedidoProdutosPage extends StatefulWidget {
@@ -20,12 +22,26 @@ class PedidoProdutosPage extends StatefulWidget {
 }
 
 class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
-  List<ItensDTO> _itensPedido = [];
+  List<ItensPedidoDTO> _itensPedido = [];
+
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
-  List<ItensDTO> _itensSelecionados = [];
-  int _quantidades = 1; // Quantidade padrão para cada produto
+  List<ItensPedidoDTO> _itensSelecionados = [];
+  int _quantidades = 1;
+  ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
+
+  ItensPedidoDTO convertToDto(ItensPedido itens) {
+    ProdutoDTO produtoDTO = ProdutoDTO.fromProduto(itens.produto);
+
+    return ItensPedidoDTO(
+      id: itens.id,
+      pedido: widget.pedido,
+      produto: produtoDTO,
+      quantidade: itens.quantidade,
+      valorTotal: itens.valorTotal,
+    );
+  }
 
   @override
   void initState() {
@@ -64,7 +80,13 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
   }
 
   void _adicionarProdutoAoCarrinho(ProdutoDTO produto, int quantidade) {
-    final ItensDTO item = ItensDTO(
+    if (produto.id == null) {
+      debugPrint("Erro: Produto sem ID");
+      return;
+    }
+
+    final ItensPedidoDTO item = ItensPedidoDTO(
+      id: produto.id,
       pedido: widget.pedido,
       produto: produto,
       quantidade: quantidade,
@@ -90,9 +112,24 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
         0, (total, item) => total + (item.valorTotal ?? 0));
   }
 
-  void _fecharPedido(BuildContext context) {
-    // Implemente a lógica para fechar o pedido
-    Navigator.pop(context); // Fechar a tela após fechar o pedido
+  void _fecharPedido(BuildContext context) async {
+    debugPrint('_fecharPedido chamado');
+
+    for (int i = 0; i < _itensSelecionados.length; i++) {
+      debugPrint('ID do Item: ${_itensSelecionados[i].id}');
+      debugPrint('Produto: ${_itensSelecionados[i].produto.nome}');
+      debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
+      debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
+      debugPrint('Valor Total: ${_itensSelecionados[i].pedido.id}');
+
+      _itensPedidoDAO.insert(_itensSelecionados[i]);
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PagamentoPage(pedido: widget.pedido)),
+    );
   }
 
   @override
@@ -184,7 +221,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 200, // Adjust the height according to your needs
+                    height: 200,
                     child: ListView.builder(
                       itemCount: _itensSelecionados.length,
                       itemBuilder: (context, index) {

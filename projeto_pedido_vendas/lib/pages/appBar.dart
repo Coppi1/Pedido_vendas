@@ -100,37 +100,27 @@ class MenuLateralEsquerdo extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
-            onTap: () {
-              // Adicione aqui a função para ir para a tela inicial
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.note_add),
             title: const Text('Emitir Pedidos'),
-            onTap: () {
-              // Adicione aqui a função para ir para a tela de emissão de pedidos
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Pedidos'),
-            onTap: () {
-              // Adicione aqui a função para ir para a tela de pedidos
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.people),
             title: const Text('Clientes'),
-            onTap: () {
-              // Adicione aqui a função para ir para a tela de clientes
-            },
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.business),
             title: const Text('Empresa'),
-            onTap: () {
-              // Adicione aqui a função para ir para a tela da empresa
-            },
+            onTap: () {},
           ),
         ],
       ),
@@ -149,14 +139,14 @@ class MenuLateralDireito extends StatelessWidget {
       future: _loadVendedores(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Mostrar um indicador de carregamento enquanto os dados estão sendo carregados
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Erro ao carregar os vendedores: ${snapshot.error}');
         } else {
-          String usuarioLogado = snapshot.data != null &&
-                  snapshot.data!.isNotEmpty
-              ? snapshot.data![1].nome ?? 'Nome do Vendedor Padrão'
-              : 'Nome do Vendedor Padrão'; // Se houver vendedores, use o nome do primeiro vendedor, caso contrário, use um nome padrão
+          String usuarioLogado =
+              snapshot.data != null && snapshot.data!.isNotEmpty
+                  ? snapshot.data![1].nome ?? 'Nome do Vendedor Padrão'
+                  : 'Nome do Vendedor Padrão';
           return Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -216,37 +206,27 @@ class MenuLateralDireito extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.notifications),
                   title: const Text('Notificações'),
-                  onTap: () {
-                    // Adicione aqui a função para as notificações
-                  },
+                  onTap: () {},
                 ),
                 ListTile(
                   leading: const Icon(Icons.edit),
                   title: const Text('Editar Conta'),
-                  onTap: () {
-                    // Adicione aqui a função para editar a conta
-                  },
+                  onTap: () {},
                 ),
                 ListTile(
                   leading: const Icon(Icons.help),
                   title: const Text('Ajuda e Suporte'),
-                  onTap: () {
-                    // Adicione aqui a função para ajuda e suporte
-                  },
+                  onTap: () {},
                 ),
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: const Text('Opções'),
-                  onTap: () {
-                    // Adicione aqui a função para ir para a tela de opções
-                  },
+                  onTap: () {},
                 ),
                 ListTile(
                   leading: const Icon(Icons.exit_to_app),
                   title: const Text('Sair'),
-                  onTap: () {
-                    // Adicione aqui a função para sair
-                  },
+                  onTap: () {},
                 ),
               ],
             ),
