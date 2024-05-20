@@ -12,6 +12,7 @@ dependencies:
   intl: ^0.19.0
   path: ^1.8.3
   sqflite: ^2.3.2
+  multi_dropdown: ^1.0.9
 
 dev_dependencies:
   flutter_test:

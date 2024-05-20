@@ -3,17 +3,16 @@ import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
 
 class PedidoDAO {
-  // final Database _db;
   Future<Database> get _db async => await Conexao.instance.database;
 
-  // Método para inserir um pedido no banco de dados
-  Future<void> insert(PedidoDTO pedido) async {
+  Future<int> insert(PedidoDTO pedido) async {
     final db = await _db;
-    await db.insert('pedido', pedido.toMap(),
+
+    int id = await db.insert('pedido', pedido.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
   }
 
-  // Método para atualizar um pedido no banco de dados
   Future<void> update(PedidoDTO pedidoDTO) async {
     final db = await _db;
     await db.update(
@@ -24,7 +23,6 @@ class PedidoDAO {
     );
   }
 
-  // Método para excluir um pedido do banco de dados
   Future<void> delete(String id) async {
     final db = await _db;
     await db.delete(
@@ -34,7 +32,6 @@ class PedidoDAO {
     );
   }
 
-  // Método para selecionar um pedido pelo ID
   Future<PedidoDTO?> selectById(String id) async {
     final db = await _db;
     List<Map<String, dynamic>> maps = await db.query(
@@ -49,7 +46,6 @@ class PedidoDAO {
     }
   }
 
-  // Método para selecionar todos os pedidos
   Future<List<PedidoDTO>> selectAll() async {
     final db = await _db;
     final List<Map<String, dynamic>> maps = await db.query('pedido');
@@ -58,12 +54,10 @@ class PedidoDAO {
     });
   }
 
-  // Método para obter o último pedido inserido
   Future<PedidoDTO?> obterUltimo() async {
     try {
       final db = await _db;
 
-      // Query the database to get the last inserted record based on the primary key
       List<Map<String, dynamic>> maps =
           await db.rawQuery('SELECT * FROM pedido ORDER BY id DESC LIMIT 1');
 

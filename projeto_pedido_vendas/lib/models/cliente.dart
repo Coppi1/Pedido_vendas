@@ -1,3 +1,4 @@
+import 'package:projeto_pedido_vendas/dtos/cliente_dto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
 class Cliente {
@@ -6,7 +7,7 @@ class Cliente {
   String? endereco;
   String? cidade;
   String? nmrCpfCnpj;
-  Vendedor? vendedor; // Modifique o tipo aqui
+  Vendedor? vendedor;
 
   Cliente({
     this.id,
@@ -17,26 +18,38 @@ class Cliente {
     this.vendedor,
   });
 
-  Map<String, dynamic> fromJson() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'cidade': cidade,
-      'vendedor': vendedor?.fromJson(),
       'nome': nome,
       'endereco': endereco,
+      'cidade': cidade,
       'nmrCpfCnpj': nmrCpfCnpj,
+      'vendedor': vendedor != null ? vendedor!.toMap() : null,
     };
   }
 
   factory Cliente.fromJson(Map<String, dynamic> json) {
     return Cliente(
       id: json['id'],
-      cidade: json['cidade'],
-      vendedor:
-          json['vendedor'] != null ? Vendedor.fromJson(json['vendedor']) : null,
       nome: json['nome'],
       endereco: json['endereco'],
+      cidade: json['cidade'],
       nmrCpfCnpj: json['nmrCpfCnpj'],
+      vendedor:
+          json['vendedor'] != null ? Vendedor.fromJson(json['vendedor']) : null,
+    );
+  }
+
+  factory Cliente.fromClienteDTO(ClienteDTO dto) {
+    return Cliente(
+      id: dto.id,
+      nome: dto.nome,
+      endereco: dto.endereco,
+      cidade: dto.cidade,
+      nmrCpfCnpj: dto.nmrCpfCnpj,
+      vendedor:
+          dto.vendedor != null ? Vendedor.fromVendedorDTO(dto.vendedor!) : null,
     );
   }
 }

@@ -67,4 +67,16 @@ class ProdutoDAO {
       return null;
     }
   }
+
+  Future<List<Produto>> selectByCategoria(int categoriaProdutoId) async {
+    final db = await _db;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'produto',
+      where: 'categoriaProdutoId =?',
+      whereArgs: [categoriaProdutoId],
+    );
+    return List.generate(maps.length, (i) {
+      return Produto.fromJson(maps[i]);
+    });
+  }
 }
