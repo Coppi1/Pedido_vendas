@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
@@ -10,7 +11,13 @@ class ItensPedidoDAO {
 
   Future<void> insert(ItensPedidoDTO itens) async {
     final db = await _db;
-    await db.insert('itens', {'produtos': json.encode(itens.toJson())},
+    Map<String, dynamic> mapItens = {
+      'pedidoId': itens.pedido?.id,
+      'produtoId': itens.produto?.id,
+      'quantidade': itens.quantidade,
+      'valorTotal': itens.valorTotal,
+    };
+    await db.insert('itens_pedido', mapItens,
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -35,5 +42,38 @@ class ItensPedidoDAO {
     } else {
       return null;
     }
+  }
+
+  // Future<List<ItensPedidoDTO>> selectByPedido(int pedidoId) async {
+  //   final db = await _db;
+  //   List<Map<String, dynamic>> maps = await db.query(
+  //     'itens_pedido',
+  //     where: 'pedidoId =?',
+  //     whereArgs: [pedidoId],
+  //   );
+
+  //   return maps.map((map) {
+  //     String produtosJson =
+  //         map['produtos'] ?? '{}'; // '{}' como valor padrão se for null
+  //     return ItensPedidoDTO.fromJson(json.decode(produtosJson));
+  //   }).toList();
+  // }
+
+  Future<List<ItensPedidoDTO>> selectByPedido(int? pedidoId) async {
+    if (pedidoId == null) {
+      debugPrint('Id de produto não pode ser nulo');
+      return [];
+    }
+    final db = await _db;
+    List<Map<String, dynamic>> maps = await db.query(
+      'itens_pedido',
+      where: 'pedidoId =?',
+      whereArgs: [pedidoId],
+    );
+
+    return maps.map((map) {
+      String produtosJson = map['produtos'] ?? '{}';
+      return ItensPedidoDTO.fromJson(json.decode(produtosJson));
+    }).toList();
   }
 }

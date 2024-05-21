@@ -6,24 +6,25 @@ Future<void> initializeDatabase() async {
   // Obter uma instância do banco de dados
   final db = await Conexao.instance.database;
 
-  // await db.execute('ALTER TABLE pedido ADD COLUMN formaPagamentoId INTEGER');
-
-  // Adicionando a coluna clienteId à tabela pedido
-  // await db.execute('ALTER TABLE pedido ADD COLUMN vendedorId INTEGER');
-
   List<String> tableNames = [
     'cliente',
     'vendedor',
     'produto',
     'forma_pagamento',
-    'pedido',
-    'categoria_produto'
+    'pedido'
+        'pedido',
+    'categoria_produto',
+    'itens_pedido'
   ];
 
-  // Excluir todas as tabelas existentes
   for (String tableName in tableNames) {
     await db.execute('DROP TABLE IF EXISTS $tableName');
   }
+
+  // await db.execute('ALTER TABLE pedido ADD COLUMN formaPagamentoId INTEGER');
+
+  // Adicionando a coluna clienteId à tabela pedido
+  //await db.execute('ALTER TABLE itens_pedido ADD COLUMN pedidoId INTEGER');
 
   // Verificar se a tabela cliente já existe
   bool clienteTableExists = await Conexao.instance.tableExists('cliente');
@@ -117,7 +118,10 @@ Future<void> initializeDatabase() async {
     await db.execute('''
       CREATE TABLE itens_pedido (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        descricao TEXT
+        pedidoId INTEGER,
+        produtoId INTEGER,
+        quantidade INTEGER,
+        valorTotal REAL
       )
     ''');
   }
@@ -190,5 +194,12 @@ Future<void> initializeDatabase() async {
     'categoriaProdutoId': 2,
     'nome': 'Produto2',
     'valor': 20.75,
+  });
+
+  await db.insert('itens_pedido', {
+    'pedidoId': 1,
+    'produtoId': 1,
+    'quantidade': 2,
+    'valorTotal': 15.99,
   });
 }

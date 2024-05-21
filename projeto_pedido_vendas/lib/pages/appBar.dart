@@ -4,20 +4,9 @@ import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
 class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VendedorDAO _vendedorDAO = VendedorDAO();
+  final String titulo;
 
-  MinhaAppBar({super.key});
-
-  @override
-  void initState() {
-    // super.initState();
-
-    _loadVendedores();
-  }
-
-  void _loadVendedores() async {
-    List<Vendedor> vendedores = await _vendedorDAO.selectAll();
-  }
+  const MinhaAppBar({Key? key, required this.titulo}) : super(key: key);
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -35,12 +24,12 @@ class MinhaAppBar extends StatelessWidget implements PreferredSizeWidget {
           Scaffold.of(context).openDrawer();
         },
       ),
-      title: const Row(
+      title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Emissão de pedidos',
-            style: TextStyle(
+            titulo,
+            style: const TextStyle(
               color: Colors.blue,
               fontWeight: FontWeight.bold,
               fontSize: 18.0,
