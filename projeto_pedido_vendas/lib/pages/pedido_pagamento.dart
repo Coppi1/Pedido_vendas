@@ -34,9 +34,8 @@ class _PagamentoPageState extends State<PagamentoPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await fetchAndPrintItensPedidoData(widget.pedido.id);
-    });
+    _futureItens = ItensPedidoDAO().selectByPedido(widget.pedido.id);
+    _calcularValorTotal();
   }
 
   Future<void> fetchAndPrintItensPedidoData(int pedidoId) async {
