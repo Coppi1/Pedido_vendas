@@ -26,9 +26,15 @@ class PedidoDTO {
       id: json['id'],
       dataPedido: json['dataPedido'],
       observacao: json['observacao'],
-      formaPagamento: FormaPagamentoDTO.fromJson(json['formaPagamento']),
-      cliente: ClienteDTO.fromJson(json['cliente']),
-      vendedor: VendedorDTO.fromJson(json['vendedor']),
+      formaPagamento: json.containsKey('formaPagamento')
+          ? FormaPagamentoDTO.fromJson(json['formaPagamento'])
+          : FormaPagamentoDTO(), // Pode ser necessário tratar o caso em que não há forma de pagamento no JSON
+      cliente: json.containsKey('cliente')
+          ? ClienteDTO.fromJson(json['cliente'])
+          : ClienteDTO(), // Trate também o caso em que não há cliente no JSON
+      vendedor: json.containsKey('vendedor')
+          ? VendedorDTO.fromJson(json['vendedor'])
+          : VendedorDTO(), // E o caso em que não há vendedor no JSON
     );
   }
 

@@ -15,7 +15,7 @@ import 'package:projeto_pedido_vendas/repository/pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 
 class PedidoCadastro extends StatefulWidget {
-  const PedidoCadastro({super.key});
+  const PedidoCadastro({Key? key}) : super(key: key);
 
   @override
   State<PedidoCadastro> createState() => _PedidoCadastroState();

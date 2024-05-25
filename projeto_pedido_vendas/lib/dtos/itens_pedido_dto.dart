@@ -21,29 +21,11 @@ class ItensPedidoDTO {
     this.valorTotal,
   });
 
-  // factory ItensPedidoDTO.fromJson(Map<String, dynamic> json) {
-  //   return ItensPedidoDTO(
-  //     id: json['id'],
-  //     pedido: PedidoDTO.fromJson(json['pedido']),
-  //     produto: ProdutoDTO.fromJson(json['produto']),
-  //     quantidade: json['quantidade'],
-  //     valorTotal: json['valorTotal'],
-  //   );
-  // }
-
   factory ItensPedidoDTO.fromJson(Map<String, dynamic> json) {
-    // Verifica se os campos 'pedido' e 'produto' estão presentes e não são nulos
-    var pedidoJson = json['pedido'];
-    var produtoJson = json['produto'];
-
-    // Cria instâncias de PedidoDTO e ProdutoDTO apenas se os dados correspondentes não forem nulos
-    var pedido = pedidoJson != null ? PedidoDTO.fromJson(pedidoJson) : null;
-    var produto = produtoJson != null ? ProdutoDTO.fromJson(produtoJson) : null;
-
     return ItensPedidoDTO(
       id: json['id'],
-      pedido: pedido,
-      produto: produto,
+      pedido: PedidoDTO.fromJson(json['pedido']),
+      produto: ProdutoDTO(id: json['produtoId']),
       quantidade: json['quantidade'],
       valorTotal: json['valorTotal'],
     );
@@ -52,7 +34,7 @@ class ItensPedidoDTO {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'pedidoId': pedido?.toJson(),
+      'pedido': pedido?.toJson(), // Serialize o objeto PedidoDTO para JSON
       'produto': produto?.toJson(),
       'quantidade': quantidade,
       'valorTotal': valorTotal,

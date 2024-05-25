@@ -21,9 +21,9 @@ class PedidoProdutosPage extends StatefulWidget {
   _PedidoProdutosPageState createState() => _PedidoProdutosPageState();
 }
 
-class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
+class _PedidoProdutosPageState extends State<PedidoProdutosPage>
+    with RouteAware {
   final List<ItensPedidoDTO> _itensPedido = [];
-
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
@@ -31,21 +31,26 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
   int _quantidades = 1;
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
 
-  ItensPedidoDTO convertToDto(ItensPedido itens) {
-    ProdutoDTO produtoDTO = ProdutoDTO.fromProduto(itens.produto);
-
-    return ItensPedidoDTO(
-      id: itens.id,
-      pedido: widget.pedido,
-      produto: produtoDTO,
-      quantidade: itens.quantidade,
-      valorTotal: itens.valorTotal,
-    );
-  }
-
   @override
   void initState() {
     super.initState();
+    _carregarCategorias();
+  }
+
+  @override
+  void didPopNext() {
+    // Método chamado quando a navegação retorna para essa página
+    _resetState();
+  }
+
+  void _resetState() {
+    setState(() {
+      _itensPedido.clear();
+      _itensSelecionados.clear();
+      _quantidades = 1;
+      _categoriaSelecionada = null;
+      _produtos.clear();
+    });
     _carregarCategorias();
   }
 

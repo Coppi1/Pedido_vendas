@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
-import 'package:projeto_pedido_vendas/models/pedido.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart'; // Supondo que este DTO existe
 import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
 
@@ -18,52 +17,38 @@ class _PagamentoPageState extends State<PagamentoPage> {
   final TextEditingController _descontoController = TextEditingController();
   double _valorTotal = 0;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   int? pedidoId = widget.pedido.id;
-  //   if (pedidoId != null) {
-  //     _futureItens = ItensPedidoDAO().selectByPedido(pedidoId);
-  //   } else {
-  //     debugPrint("ID do pedido não pode ser nulo.");
-  //     return;
-  //   }
-  //   _calcularValorTotal();
-  // }
-
   @override
   void initState() {
     super.initState();
-    _futureItens = ItensPedidoDAO().selectByPedido(widget.pedido.id);
-    _calcularValorTotal();
+    _futureItens = _fetchItensPedidoData();
   }
 
-  Future<void> fetchAndPrintItensPedidoData(int pedidoId) async {
+  Future<List<ItensPedidoDTO>> _fetchItensPedidoData() async {
     try {
-      // Realiza a consulta para obter os dados de itens_pedido
       List<ItensPedidoDTO> itens =
-          await ItensPedidoDAO().selectByPedido(pedidoId);
+          await ItensPedidoDAO().selectByPedido(widget.pedido.id);
+      _calcularValorTotal(itens);
 
-      // Imprime os dados obtidos
-      debugPrint('Dados de itens_pedido: $itens');
+      debugPrint()
 
-      // Atualiza o estado com os dados obtidos
-      setState(() {
-        _futureItens = Future.value(
-            itens); // Usa Future.value para converter a lista já obtida em um Future
-      });
-
-      // Calcula o valor total baseado nos itens obtidos
-      _calcularValorTotal();
+      return itens;
     } catch (e) {
       debugPrint('Erro ao buscar dados de itens_pedido: $e');
+      return [];
     }
   }
 
-  void _calcularValorTotal() async {
-    var itens = await _futureItens;
+  void _calcularValorTotal(List<ItensPedidoDTO> itens) {
     setState(() {
-      _valorTotal = itens.fold(0, (sum, item) => sum + (item.valorTotal ?? 0));
+      _valorTotal =
+          itens.fold(0.0, (sum, item) => sum + (item.valorTotal ?? 0));
+    });
+  }
+
+  void _clearItens() {
+    setState(() {
+      _futureItens = Future.value([]);
+      _valorTotal = 0;
     });
   }
 
@@ -74,7 +59,10 @@ class _PagamentoPageState extends State<PagamentoPage> {
         title: const Text('Página de Pagamento'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _clearItens();
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Padding(
@@ -99,7 +87,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
               ),
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                //  lógica para recalcular o valor total com o desconto
+                // lógica para recalcular o valor total com o desconto
               },
             ),
             const SizedBox(height: 20),
@@ -111,22 +99,26 @@ class _PagamentoPageState extends State<PagamentoPage> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return const Text('Erro ao carregar os itens');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('Nenhum item encontrado.');
                   } else {
+                    final itens = snapshot.data!;
                     return ListView.builder(
-                      itemCount: snapshot.data!.length,
+                      itemCount: itens.length,
                       itemBuilder: (context, index) {
-                        ItensPedidoDTO item = snapshot.data![index];
+                        final item = itens[index];
                         return ListTile(
-                          title: Text('${item.produto?.nome}'),
+                          title: Text(
+                              item.produto?.nome ?? 'Produto desconhecido'),
                           subtitle: Text(
-                              'Quantidade: ${item.quantidade}, Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2)}'),
+                              'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2) ?? '0.00'}'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () {
-                                  //  lógica para editar o produto
+                                  // lógica para editar o produto
                                 },
                               ),
                               IconButton(
