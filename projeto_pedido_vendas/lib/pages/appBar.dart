@@ -78,14 +78,14 @@ class MenuLateralEsquerdo extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
+          const DrawerHeader(
             decoration: BoxDecoration(
               color: Color.fromARGB(64, 0, 0, 250), // Azul com 50% de transparência
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const <Widget>[
+              children: <Widget>[
                 Text(
                   'Pedido Ágil',
                   style: TextStyle(

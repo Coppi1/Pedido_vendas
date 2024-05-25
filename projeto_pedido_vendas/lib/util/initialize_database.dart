@@ -39,6 +39,9 @@ Future<void> initializeDatabase() async {
   // Verificar se a tabela pedido já existe
   bool pedidoTableExists = await Conexao.instance.tableExists('pedido');
 
+  // Verificar se a tabela usuarios já existe
+  bool usuarioTableExists = await Conexao.instance.tableExists('usuarios');
+
   bool categoriaProdutoExists =
       await Conexao.instance.tableExists('categoria_produto');
 
@@ -120,6 +123,16 @@ Future<void> initializeDatabase() async {
     ''');
   }
 
+  if (!usuarioTableExists) {
+    await db.execute('''
+      CREATE TABLE usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        senha TEXT NOT NULL
+      )
+    ''');
+  }
+
   await db.insert('vendedor', {
     'nome': 'João Vendedor',
   });
@@ -188,5 +201,11 @@ Future<void> initializeDatabase() async {
     'categoriaProdutoId': 2,
     'nome': 'Produto2',
     'valor': 20.75,
+  });
+
+  // Inserir dados de usuários
+  await db.insert('usuarios', {
+    'email': 'usuario@example.com',
+    'senha': 'senha123',
   });
 }
