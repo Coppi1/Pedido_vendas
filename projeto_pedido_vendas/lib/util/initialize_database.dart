@@ -47,12 +47,15 @@ Future<void> initializeDatabase() async {
 
   bool itensPedidoExists = await Conexao.instance.tableExists('itens_pedido');
 
+  bool pagamentoPedidoExists =
+      await Conexao.instance.tableExists('pagamento_pedido');
+
   // Criar a tabela pedido se ela não existir
   if (!pedidoTableExists) {
     await db.execute('''
     CREATE TABLE pedido (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      dataPedido INTEGER,
+      dataPedido DATETIME,
       observacao TEXT,
       formaPagamentoId INTEGER,
       clienteId INTEGER,
@@ -124,91 +127,103 @@ Future<void> initializeDatabase() async {
         valorTotal REAL
       )
     ''');
+
+    if (!pagamentoPedidoExists) {
+      await db.execute('''
+      CREATE TABLE pagamento_pedido (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        valorTotal REAL,
+        desconto REAL,
+        dataVencimento INTEGER,
+        pedidoId INTEGER
+      )
+    ''');
+    }
+
+    await db.insert('vendedor', {
+      'nome': 'João Vendedor',
+    });
+
+    await db.insert('vendedor', {
+      'nome': 'Vendedo xyz',
+    });
+    await db.insert('cliente', {
+      'nome': 'Chupacabra',
+      'endereco': 'Rua das Flores, 123',
+      'cidade': 'São Paulo',
+      'nmrCpfCnpj': '123.456.789-00',
+      'vendedorId': 1,
+    });
+
+    await db.insert('cliente', {
+      'nome': 'Zé da Couve',
+      'endereco': 'Rua das Flores, 123',
+      'cidade': 'São Paulo',
+      'nmrCpfCnpj': '123.456.789-00',
+      'vendedorId': 1,
+    });
+    await db.insert('forma_pagamento', {
+      'descricao': 'Dinheiro',
+    });
+
+    await db.insert('forma_pagamento', {
+      'descricao': 'Cartão de Crédito',
+    });
+
+    await db.insert('forma_pagamento', {
+      'descricao': 'Cartão de Débito',
+    });
+
+    await db.insert('forma_pagamento', {
+      'descricao': 'Boleto Bancário',
+    });
+
+    await db.insert('categoria_produto', {
+      'descricao': 'Limpeza',
+    });
+
+    await db.insert('categoria_produto', {
+      'descricao': 'Perfumaria',
+    });
+
+    await db.insert('categoria_produto', {
+      'descricao': 'Hidraulica',
+    });
+
+    await db.insert('categoria_produto', {
+      'descricao': 'Elétrica',
+    });
+
+    await db.insert('produto', {
+      'marca': 'Ajax',
+      'unidade': 'Litro',
+      'categoriaProdutoId': 1,
+      'nome': 'Desinfetante Multiuso',
+      'valor': 5.99,
+    });
+
+    await db.insert('produto', {
+      'marca': 'Natura',
+      'unidade': 'Mililitro',
+      'categoriaProdutoId': 2,
+      'nome': 'Eau de Toilette Feminino',
+      'valor': 89.90,
+    });
+
+    await db.insert('produto', {
+      'marca': 'Tigre',
+      'unidade': 'Metro',
+      'categoriaProdutoId': 3,
+      'nome': 'Tubo PVC',
+      'valor': 15.00,
+    });
+
+    await db.insert('produto', {
+      'marca': 'Philips',
+      'unidade': 'Unidade',
+      'categoriaProdutoId': 4,
+      'nome': 'Lâmpada LED',
+      'valor': 12.50,
+    });
   }
-
-  await db.insert('vendedor', {
-    'nome': 'João Vendedor',
-  });
-
-  await db.insert('vendedor', {
-    'nome': 'Vendedo xyz',
-  });
-  await db.insert('cliente', {
-    'nome': 'Chupacabra',
-    'endereco': 'Rua das Flores, 123',
-    'cidade': 'São Paulo',
-    'nmrCpfCnpj': '123.456.789-00',
-    'vendedorId': 1,
-  });
-
-  await db.insert('cliente', {
-    'nome': 'Zé da Couve',
-    'endereco': 'Rua das Flores, 123',
-    'cidade': 'São Paulo',
-    'nmrCpfCnpj': '123.456.789-00',
-    'vendedorId': 1,
-  });
-  await db.insert('forma_pagamento', {
-    'descricao': 'Dinheiro',
-  });
-
-  await db.insert('forma_pagamento', {
-    'descricao': 'Cartão de Crédito',
-  });
-
-  await db.insert('forma_pagamento', {
-    'descricao': 'Cartão de Débito',
-  });
-
-  await db.insert('forma_pagamento', {
-    'descricao': 'Boleto Bancário',
-  });
-
-  await db.insert('categoria_produto', {
-    'descricao': 'Limpeza',
-  });
-
-  await db.insert('categoria_produto', {
-    'descricao': 'Perfumaria',
-  });
-
-  await db.insert('categoria_produto', {
-    'descricao': 'Hidraulica',
-  });
-
-  await db.insert('categoria_produto', {
-    'descricao': 'Elétrica',
-  });
-
-  await db.insert('produto', {
-    'marca': 'Ajax',
-    'unidade': 'Litro',
-    'categoriaProdutoId': 1,
-    'nome': 'Desinfetante Multiuso',
-    'valor': 5.99,
-  });
-
-  await db.insert('produto', {
-    'marca': 'Natura',
-    'unidade': 'Mililitro',
-    'categoriaProdutoId': 2,
-    'nome': 'Eau de Toilette Feminino',
-    'valor': 89.90,
-  });
-
-  await db.insert('produto', {
-    'marca': 'Tigre',
-    'unidade': 'Metro',
-    'categoriaProdutoId': 3,
-    'nome': 'Tubo PVC',
-    'valor': 15.00,
-  });
-
-  await db.insert('produto', {
-    'marca': 'Philips',
-    'unidade': 'Unidade',
-    'categoriaProdutoId': 4,
-    'nome': 'Lâmpada LED',
-    'valor': 12.50,
-  });
 }

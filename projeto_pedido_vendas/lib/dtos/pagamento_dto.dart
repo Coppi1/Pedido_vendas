@@ -2,6 +2,7 @@ import 'package:projeto_pedido_vendas/models/pedido.dart';
 
 class PagamentoDTO {
   int? id;
+  int parcelas;
   double valorTotal;
   double desconto;
   String dataVencimento;
@@ -9,6 +10,7 @@ class PagamentoDTO {
 
   PagamentoDTO({
     this.id,
+    required this.parcelas,
     required this.valorTotal,
     required this.desconto,
     required this.dataVencimento,
@@ -18,6 +20,7 @@ class PagamentoDTO {
   factory PagamentoDTO.fromJson(Map<String, dynamic> json) {
     return PagamentoDTO(
       id: json['id'],
+      parcelas: json['parcelas'],
       valorTotal: json['valorTotal'],
       desconto: json['desconto'],
       dataVencimento: json['dataVencimento'],
@@ -28,6 +31,7 @@ class PagamentoDTO {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'parcelas': parcelas,
       'valorTotal': valorTotal,
       'desconto': desconto,
       'dataVencimento': dataVencimento,
