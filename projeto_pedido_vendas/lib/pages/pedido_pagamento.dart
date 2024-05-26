@@ -21,15 +21,35 @@ class _PagamentoPageState extends State<PagamentoPage> {
   void initState() {
     super.initState();
     _futureItens = _fetchItensPedidoData();
+
+    // Aguarda o futuro ser resolvido e então imprime os detalhes dos itens
+    _futureItens.then((itens) {
+      itens.forEach((item) {
+        // Verifica se produto é null antes de acessar sua propriedade nome
+        if (item.produto != null) {
+          debugPrint('Nome do Produto: ${item.produto!.nome}');
+        } else {
+          debugPrint('Produto é null');
+        }
+      });
+    }).catchError((error) {
+      debugPrint('Erro ao processar itens: $error');
+    });
+
+    debugPrint('Iniciando busca de itens...');
   }
 
   Future<List<ItensPedidoDTO>> _fetchItensPedidoData() async {
     try {
+      if (widget.pedido.id == null) {
+        throw Exception('Id do pedido é nulo');
+      }
+
       List<ItensPedidoDTO> itens =
-          await ItensPedidoDAO().selectByPedido(widget.pedido.id);
+          await ItensPedidoDAO().selectByPedido(widget.pedido.id!);
       _calcularValorTotal(itens);
 
-      debugPrint()
+      // debugPrint('Itens buscados: $itens');
 
       return itens;
     } catch (e) {
@@ -47,7 +67,8 @@ class _PagamentoPageState extends State<PagamentoPage> {
 
   void _clearItens() {
     setState(() {
-      _futureItens = Future.value([]);
+      _futureItens =
+          Future.value([]); // Reinicializa o Future com uma lista vazia
       _valorTotal = 0;
     });
   }

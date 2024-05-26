@@ -19,7 +19,6 @@ class ItensPedido {
 
   factory ItensPedido.fromItensPedidoDTO(ItensPedidoDTO dto) {
     return ItensPedido(
-      id: dto.id,
       produto: Produto.fromDto(dto.produto!),
       pedido: Pedido.fromPedidoDTO(dto.pedido!),
       quantidade: dto.quantidade,

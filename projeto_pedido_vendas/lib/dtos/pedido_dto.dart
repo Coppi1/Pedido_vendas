@@ -24,24 +24,26 @@ class PedidoDTO {
   factory PedidoDTO.fromJson(Map<String, dynamic> json) {
     return PedidoDTO(
       id: json['id'],
-      dataPedido: json['dataPedido'],
+      dataPedido: json['dataPedido'] != null
+          ? DateTime.parse(json['dataPedido'])
+          : null,
       observacao: json['observacao'],
       formaPagamento: json.containsKey('formaPagamento')
           ? FormaPagamentoDTO.fromJson(json['formaPagamento'])
-          : FormaPagamentoDTO(), // Pode ser necessário tratar o caso em que não há forma de pagamento no JSON
+          : FormaPagamentoDTO(), // Substitua por um valor padrão válido
       cliente: json.containsKey('cliente')
           ? ClienteDTO.fromJson(json['cliente'])
-          : ClienteDTO(), // Trate também o caso em que não há cliente no JSON
+          : ClienteDTO(), // Substitua por um valor padrão válido
       vendedor: json.containsKey('vendedor')
           ? VendedorDTO.fromJson(json['vendedor'])
-          : VendedorDTO(), // E o caso em que não há vendedor no JSON
+          : VendedorDTO(), // Substitua por um valor padrão válido
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'dataPedido': dataPedido,
+      'dataPedido': dataPedido?.toIso8601String(),
       'observacao': observacao,
       'formaPagamento': formaPagamento.toJson(),
       'cliente': cliente.toJson(),

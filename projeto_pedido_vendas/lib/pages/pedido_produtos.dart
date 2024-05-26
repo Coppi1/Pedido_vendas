@@ -27,7 +27,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
-  final List<ItensPedidoDTO> _itensSelecionados = [];
+  List<ItensPedidoDTO> _itensSelecionados = [];
   int _quantidades = 1;
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
 
@@ -91,7 +91,6 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     }
 
     final ItensPedidoDTO item = ItensPedidoDTO(
-      id: produto.id,
       pedido: widget.pedido,
       produto: produto,
       quantidade: quantidade,
@@ -118,14 +117,13 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   }
 
   void _fecharPedido(BuildContext context) async {
-    debugPrint('_fecharPedido chamado');
+    // debugPrint('_fecharPedido chamado');
 
     for (int i = 0; i < _itensSelecionados.length; i++) {
-      debugPrint('ID do Item: ${_itensSelecionados[i].id}');
-      debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');
-      debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].pedido?.id}');
+      // debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');
+      // debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].pedido?.id}');
 
       try {
         // Tenta inserir o item no banco de dados
