@@ -84,4 +84,13 @@ class ItensPedidoDAO {
 
     return itens;
   }
+
+  Future<void> deleteByPedido(int pedidoId) async {
+    final db = await _db;
+    await db.delete(
+      'itens_pedido',
+      where: 'pedidoId = ?',
+      whereArgs: [pedidoId],
+    );
+  }
 }

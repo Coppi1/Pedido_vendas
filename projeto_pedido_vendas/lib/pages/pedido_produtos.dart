@@ -117,7 +117,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   }
 
   void _fecharPedido(BuildContext context) async {
-    // debugPrint('_fecharPedido chamado');
+    debugPrint('_fecharPedido chamado');
 
     for (int i = 0; i < _itensSelecionados.length; i++) {
       // debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');

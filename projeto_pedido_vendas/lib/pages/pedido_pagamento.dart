@@ -73,6 +73,16 @@ class _PagamentoPageState extends State<PagamentoPage> {
     });
   }
 
+  void _removerItensDoBanco() async {
+    try {
+      if (widget.pedido.id != null) {
+        await ItensPedidoDAO().deleteByPedido(widget.pedido.id!);
+      }
+    } catch (e) {
+      debugPrint('Erro ao remover itens do banco: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,6 +92,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             _clearItens();
+            _removerItensDoBanco();
             Navigator.pop(context);
           },
         ),

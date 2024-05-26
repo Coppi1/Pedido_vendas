@@ -181,25 +181,34 @@ Future<void> initializeDatabase() async {
   });
 
   await db.insert('produto', {
-    'marca': 'Marca1',
-    'unidade': 'Unidade1',
+    'marca': 'Ajax',
+    'unidade': 'Litro',
     'categoriaProdutoId': 1,
-    'nome': 'Produto1',
-    'valor': 10.50,
+    'nome': 'Desinfetante Multiuso',
+    'valor': 5.99,
   });
 
   await db.insert('produto', {
-    'marca': 'Marca2',
-    'unidade': 'Unidade2',
+    'marca': 'Natura',
+    'unidade': 'Mililitro',
     'categoriaProdutoId': 2,
-    'nome': 'Produto2',
-    'valor': 20.75,
+    'nome': 'Eau de Toilette Feminino',
+    'valor': 89.90,
   });
 
-  await db.insert('itens_pedido', {
-    'pedidoId': 1,
-    'produtoId': 1,
-    'quantidade': 2,
-    'valorTotal': 15.99,
+  await db.insert('produto', {
+    'marca': 'Tigre',
+    'unidade': 'Metro',
+    'categoriaProdutoId': 3,
+    'nome': 'Tubo PVC',
+    'valor': 15.00,
+  });
+
+  await db.insert('produto', {
+    'marca': 'Philips',
+    'unidade': 'Unidade',
+    'categoriaProdutoId': 4,
+    'nome': 'Lâmpada LED',
+    'valor': 12.50,
   });
 }
