@@ -80,7 +80,7 @@ class MenuLateralEsquerdo extends StatelessWidget {
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Color.fromARGB(64, 0, 0, 250), // Azul com 50% de transparência
+              color: Colors.blue
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

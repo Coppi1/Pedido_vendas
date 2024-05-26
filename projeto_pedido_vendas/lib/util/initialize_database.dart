@@ -203,9 +203,11 @@ Future<void> initializeDatabase() async {
     'valor': 20.75,
   });
 
-  // Inserir dados de usuários
-  await db.insert('usuarios', {
-    'email': 'usuario@example.com',
-    'senha': 'senha123',
+  // Inserir ou substituir dados de usuários
+  await db.transaction((txn) async {
+    await txn.rawInsert(
+      'INSERT OR REPLACE INTO usuarios (email, senha) VALUES (?,?)',
+      ['teste', 'teste'],
+    );
   });
 }
