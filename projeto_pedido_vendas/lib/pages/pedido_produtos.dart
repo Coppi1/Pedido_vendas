@@ -21,31 +21,36 @@ class PedidoProdutosPage extends StatefulWidget {
   _PedidoProdutosPageState createState() => _PedidoProdutosPageState();
 }
 
-class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
-  List<ItensPedidoDTO> _itensPedido = [];
-
+class _PedidoProdutosPageState extends State<PedidoProdutosPage>
+    with RouteAware {
+  final List<ItensPedidoDTO> _itensPedido = [];
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
-  List<ItensPedidoDTO> _itensSelecionados = [];
+  final List<ItensPedidoDTO> _itensSelecionados = [];
   int _quantidades = 1;
-  ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
-
-  ItensPedidoDTO convertToDto(ItensPedido itens) {
-    ProdutoDTO produtoDTO = ProdutoDTO.fromProduto(itens.produto);
-
-    return ItensPedidoDTO(
-      id: itens.id,
-      pedido: widget.pedido,
-      produto: produtoDTO,
-      quantidade: itens.quantidade,
-      valorTotal: itens.valorTotal,
-    );
-  }
+  final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
 
   @override
   void initState() {
     super.initState();
+    _carregarCategorias();
+  }
+
+  @override
+  void didPopNext() {
+    // Método chamado quando a navegação retorna para essa página
+    _resetState();
+  }
+
+  void _resetState() {
+    setState(() {
+      _itensPedido.clear();
+      _itensSelecionados.clear();
+      _quantidades = 1;
+      _categoriaSelecionada = null;
+      _produtos.clear();
+    });
     _carregarCategorias();
   }
 
@@ -86,7 +91,6 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
     }
 
     final ItensPedidoDTO item = ItensPedidoDTO(
-      id: produto.id,
       pedido: widget.pedido,
       produto: produto,
       quantidade: quantidade,
@@ -116,13 +120,17 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
     debugPrint('_fecharPedido chamado');
 
     for (int i = 0; i < _itensSelecionados.length; i++) {
-      debugPrint('ID do Item: ${_itensSelecionados[i].id}');
-      debugPrint('Produto: ${_itensSelecionados[i].produto.nome}');
-      debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].pedido.id}');
+      // debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');
+      // debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].pedido?.id}');
 
-      _itensPedidoDAO.insert(_itensSelecionados[i]);
+      try {
+        // Tenta inserir o item no banco de dados
+        await _itensPedidoDAO.insert(_itensSelecionados[i]);
+      } catch (e) {
+        debugPrint('Erro ao inserir item: $e');
+      }
     }
 
     Navigator.push(
@@ -135,7 +143,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MinhaAppBar(),
+      appBar: const MinhaAppBar(titulo: 'Carrinho de Produtos'),
       drawer: const MenuLateralEsquerdo(),
       endDrawer: MenuLateralDireito(),
       body: SingleChildScrollView(
@@ -145,17 +153,17 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Pedido #${widget.pedido.id}'),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
-                'Cliente: ${widget.pedido.cliente?.nome}',
+                'Cliente: ${widget.pedido.cliente.nome}',
               ),
               Text(
-                'Vendedor: ${widget.pedido.vendedor?.nome}',
+                'Vendedor: ${widget.pedido.vendedor.nome}',
               ),
               Text(
-                'Forma de Pagamento: ${widget.pedido.formaPagamento?.descricao}',
+                'Forma de Pagamento: ${widget.pedido.formaPagamento.descricao}',
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               DropdownButtonFormField<CategoriaProdutoDTO>(
                 hint: const Text('Selecione uma categoria'),
                 value: _categoriaSelecionada,
@@ -207,13 +215,13 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                icon: Icon(Icons.shopping_cart),
-                label: Text('Adicionar ao Carrinho'),
+                icon: const Icon(Icons.shopping_cart),
+                label: const Text('Adicionar ao Carrinho'),
                 onPressed: () =>
                     _adicionarProdutoAoCarrinho(_produtos.first, _quantidades),
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 143, 205, 255),
-                  onPrimary: Colors.white,
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(255, 143, 205, 255),
                 ),
               ),
               const SizedBox(height: 20),
@@ -233,21 +241,26 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                                 _itensSelecionados[index].produto?.nome ??
                                     'Nome do Produto'),
                             subtitle: Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceBetween, // Adicionado para espaço entre os widgets
                               children: [
-                                const Text('Quantidade: '),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextFormField(
-                                    initialValue: _quantidades.toString(),
-                                    onChanged: (value) {
-                                      _alterarQuantidade(
-                                          index, int.tryParse(value) ?? 1);
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                  ),
+                                Row(
+                                  children: [
+                                    const Text('Quantidade: '),
+                                    SizedBox(
+                                      width: 50,
+                                      child: TextFormField(
+                                        initialValue: _quantidades.toString(),
+                                        onChanged: (value) {
+                                          _alterarQuantidade(
+                                              index, int.tryParse(value) ?? 1);
+                                        },
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 70),
                                 Text(
                                     'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}'),
                               ],
@@ -259,8 +272,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 13.0),
-              SizedBox(height: 20),
+              const SizedBox(height: 30),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -268,15 +280,15 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                       Text('Total: R\$ ${_calcularTotal().toStringAsFixed(2)}'),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
-                  child: Text('Fechar Pedido'),
                   onPressed: () => _fecharPedido(context),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                    onPrimary: Colors.white,
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
                   ),
+                  child: const Text('Fechar Pedido'),
                 ),
               ),
             ],
