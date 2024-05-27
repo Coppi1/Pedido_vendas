@@ -27,7 +27,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
   List<ProdutoDTO> _produtos = [];
-  List<ItensPedidoDTO> _itensSelecionados = [];
+  final List<ItensPedidoDTO> _itensSelecionados = [];
   int _quantidades = 1;
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
 
@@ -241,21 +241,26 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                                 _itensSelecionados[index].produto?.nome ??
                                     'Nome do Produto'),
                             subtitle: Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceBetween, // Adicionado para espaço entre os widgets
                               children: [
-                                const Text('Quantidade: '),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextFormField(
-                                    initialValue: _quantidades.toString(),
-                                    onChanged: (value) {
-                                      _alterarQuantidade(
-                                          index, int.tryParse(value) ?? 1);
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                  ),
+                                Row(
+                                  children: [
+                                    const Text('Quantidade: '),
+                                    SizedBox(
+                                      width: 50,
+                                      child: TextFormField(
+                                        initialValue: _quantidades.toString(),
+                                        onChanged: (value) {
+                                          _alterarQuantidade(
+                                              index, int.tryParse(value) ?? 1);
+                                        },
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 70),
                                 Text(
                                     'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}'),
                               ],
@@ -267,8 +272,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                   ),
                 ],
               ),
-              const SizedBox(height: 13.0),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

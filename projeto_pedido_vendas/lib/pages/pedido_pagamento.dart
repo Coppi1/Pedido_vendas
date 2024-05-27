@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
@@ -21,7 +22,8 @@ class _PagamentoPageState extends State<PagamentoPage> {
   final TextEditingController _vencimentoController = TextEditingController();
   double _valorTotal = 0;
   double _desconto = 0;
-  List<Map<String, dynamic>> _parcelas = [];
+  double _valorTotalComDesconto = 0;
+  final List<Map<String, dynamic>> _parcelas = [];
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _PagamentoPageState extends State<PagamentoPage> {
     _futureItens = _fetchItensPedidoData();
     _vencimentoController.text =
         DateFormat('yyyy-MM-dd').format(DateTime.now());
-
     debugPrint('Iniciando busca de itens...');
   }
 
@@ -38,13 +39,10 @@ class _PagamentoPageState extends State<PagamentoPage> {
       if (widget.pedido.id == null) {
         throw Exception('Id do pedido é nulo');
       }
-
       List<ItensPedidoDTO> itens =
           await ItensPedidoDAO().selectByPedido(widget.pedido.id!);
       _calcularValorTotal(itens);
-
       // debugPrint('Itens buscados: $itens');
-
       return itens;
     } catch (e) {
       debugPrint('Erro ao buscar dados de itens_pedido: $e');
@@ -54,18 +52,13 @@ class _PagamentoPageState extends State<PagamentoPage> {
 
   void _calcularValorTotal(List<ItensPedidoDTO> itens) {
     setState(() {
+      // Calcular o valor total sem desconto
       _valorTotal = itens.fold(
         0.0,
-        (sum, item) => sum + ((item.valorTotal ?? 0) * (1 - _desconto / 100)),
+        (sum, item) => sum + (item.valorTotal ?? 0),
       );
-    });
-  }
-
-  void _clearItens() {
-    setState(() {
-      _futureItens =
-          Future.value([]); // Reinicializa o Future com uma lista vazia
-      _valorTotal = 0;
+      // Calcular o valor total com desconto
+      _valorTotalComDesconto = _valorTotal * (1 - _desconto / 100);
     });
   }
 
@@ -90,7 +83,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
   void _recalcularValorTotalComDesconto(String desconto) {
     setState(() {
       _desconto = double.tryParse(desconto) ?? 0;
-      _calcularValorTotal(_futureItens as List<ItensPedidoDTO>);
+      _valorTotalComDesconto = _valorTotal * (1 - _desconto / 100);
     });
   }
 
@@ -98,10 +91,10 @@ class _PagamentoPageState extends State<PagamentoPage> {
     setState(() {
       _parcelas.clear();
       int numParcelas = int.tryParse(parcelas) ?? 0;
-      double valorParcela = _valorTotal / numParcelas;
+      double valorParcela = _valorTotalComDesconto / numParcelas;
 
       for (int i = 0; i < numParcelas; i++) {
-        _parcelas.add({
+        Map<String, dynamic> parcelaInfo = {
           'numero': i + 1,
           'vencimento': DateFormat('yyyy-MM-dd').format(
             DateFormat('yyyy-MM-dd')
@@ -109,9 +102,28 @@ class _PagamentoPageState extends State<PagamentoPage> {
                 .add(Duration(days: 30 * (i + 1))),
           ),
           'valor': valorParcela,
+        };
+        _parcelas.add(parcelaInfo);
+
+        // Chama o método para inserir a parcela no banco de dados
+        _inserirParcelaNoBanco(i + 1, valorParcela, _desconto,
+                parcelaInfo['vencimento'], widget.pedido.id!)
+            .then((_) {
+          // Você pode querer atualizar a UI ou mostrar uma mensagem de sucesso aqui
+        }).catchError((error) {
+          // Trate possíveis erros aqui
+          print('Erro ao inserir parcela: $error');
         });
       }
     });
+  }
+
+  Future<void> _inserirParcelaNoBanco(int parcela, double valorTotal,
+      double desconto, String dataVencimento, int pedidoId) async {
+    // Substitua esta parte pela sua lógica de inserção no banco de dados
+    debugPrint(
+        'Inserindo parcela $parcela com valor $valorTotal, desconto $desconto, vencimento $dataVencimento para o pedido $pedidoId');
+    // Aqui você faria a chamada para inserir os dados no banco usando o seu DAO ou repositório
   }
 
   @override
@@ -122,7 +134,6 @@ class _PagamentoPageState extends State<PagamentoPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            _clearItens();
             _removerItensDoBanco();
             Navigator.pop(context);
           },
@@ -146,7 +157,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
               const Text('Carrinho de Produtos',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               Container(
-                constraints: BoxConstraints(maxHeight: 200),
+                constraints: const BoxConstraints(minHeight: 200),
                 child: FutureBuilder<List<ItensPedidoDTO>>(
                   future: _futureItens,
                   builder: (context, snapshot) {
@@ -160,7 +171,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
                       final itens = snapshot.data!;
                       return ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: itens.length,
                         itemBuilder: (context, index) {
                           final item = itens[index];
@@ -207,13 +218,22 @@ class _PagamentoPageState extends State<PagamentoPage> {
                 },
               ),
               const SizedBox(height: 20),
+              Text(
+                'Valor Total (Sem Desconto: R\$ ${_valorTotal.toStringAsFixed(2)}',
+              ),
+              Text(
+                'Valor Total (Com Desconto): R\$ ${_valorTotalComDesconto.toStringAsFixed(2)}',
+              ),
+              const SizedBox(height: 20),
+              const Text('Gerar parcelas no Financeiro',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _parcelasController,
                       decoration: const InputDecoration(
-                        labelText: 'Número de Parcelas',
+                        labelText: 'nº Parcelas',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
@@ -241,13 +261,6 @@ class _PagamentoPageState extends State<PagamentoPage> {
                     child: const Text('Aplicar'),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Valor Total (Sem Desconto): R\$ ${(_valorTotal / (1 - _desconto / 100)).toStringAsFixed(2)}',
-              ),
-              Text(
-                'Valor Total (Com Desconto): R\$ ${_valorTotal.toStringAsFixed(2)}',
               ),
               const SizedBox(height: 20),
               ElevatedButton(
