@@ -5,7 +5,7 @@ import '../dtos/usuario_dto.dart';
 import '../pages/pedido_inserir.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -54,103 +54,129 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Removido o AppBar
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Colors.white,
-              Colors.blue,
-            ],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      'Pedido Agil',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: 300,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(
+                            'assets/images/background.jpg'), // Substitua por seu asset
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(height: 60),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: const Icon(Icons.person_outline,
-                            color: Colors.white),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.8),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu email.';
-                        }
-                        return null;
-                      },
+                  ),
+                  Container(
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _senhaController,
-                      decoration: InputDecoration(
-                        labelText: 'Senha',
-                        prefixIcon:
-                            const Icon(Icons.lock_outline, color: Colors.white),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                              _mostrarSenha
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.white),
-                          onPressed: () {
-                            setState(() {
-                              _mostrarSenha = !_mostrarSenha;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.8),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      obscureText: !_mostrarSenha,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira sua senha.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        minimumSize:
-                            Size(MediaQuery.of(context).size.width - 40, 50),
-                      ),
-                      child: const Text('Entrar'),
-                    ),
-                  ],
+                    child: const Center(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 25),
+              // App slogan
+              Text(
+                "Pedido Ágil",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.inverseSurface,
                 ),
               ),
-            ),
+              const SizedBox(height: 25),
+              // Email text field
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon:
+                      const Icon(Icons.person_outline, color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu email.';
+                  }
+                  // Adicione mais validações conforme necessário
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              // Password text field
+              TextFormField(
+                controller: _senhaController,
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  prefixIcon:
+                      const Icon(Icons.lock_outline, color: Colors.white),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        _mostrarSenha ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _mostrarSenha = !_mostrarSenha;
+                      });
+                    },
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                obscureText: !_mostrarSenha,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira sua senha.';
+                  }
+                  // Adicione mais validações conforme necessário
+                  return null;
+                },
+              ),
+              const SizedBox(height: 25),
+              // Login button
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  minimumSize: Size(MediaQuery.of(context).size.width - 40, 50),
+                ),
+                child: const Text('Entrar'),
+              ),
+              const SizedBox(height: 25),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Não tem uma conta?",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    "Registre-se",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
