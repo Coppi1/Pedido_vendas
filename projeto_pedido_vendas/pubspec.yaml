@@ -13,8 +13,9 @@ dependencies:
   path: ^1.8.3
   sqflite: ^2.3.2
   multi_dropdown: ^1.0.9
-  font_awesome_flutter: ^10.1.0
 
+
+  font_awesome_flutter: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -108,7 +108,7 @@ class _PedidoCadastroState extends State<PedidoCadastro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MinhaAppBar(),
+      appBar: MinhaAppBar(titulo: 'Emitir Novo Pedido'),
       drawer: const MenuLateralEsquerdo(),
       endDrawer: MenuLateralDireito(),
       body: SingleChildScrollView(

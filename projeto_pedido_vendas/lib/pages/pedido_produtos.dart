@@ -5,7 +5,6 @@ import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
-import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
 import 'package:projeto_pedido_vendas/pages/appBar.dart';
 import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart';
 import 'package:projeto_pedido_vendas/repository/categoria_produto_dao.dart';
@@ -22,34 +21,37 @@ class PedidoProdutosPage extends StatefulWidget {
   _PedidoProdutosPageState createState() => _PedidoProdutosPageState();
 }
 
-class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
+class _PedidoProdutosPageState extends State<PedidoProdutosPage>
+    with RouteAware {
   final List<ItensPedidoDTO> _itensPedido = [];
-  List<CategoriaProduto> _categorias = [];
+  final List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
-  List<ProdutoDTO> _produtos = [];
+  final List<ProdutoDTO> _produtos = [];
   final List<ItensPedidoDTO> _itensSelecionados = [];
-  int _quantidades = 1;
+  final int _quantidades = 1;
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
   final TextEditingController _searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  ItensPedidoDTO convertToDto(ItensPedido itens) {
-    ProdutoDTO produtoDTO = ProdutoDTO.fromProduto(itens.produto);
-
-    return ItensPedidoDTO(
-      id: itens.id,
-      pedido: widget.pedido,
-      produto: produtoDTO,
-      quantidade: itens.quantidade,
-      valorTotal: itens.valorTotal,
-    );
+    _carregarCategorias();
+    _searchController.addListener(onSearchChanged);
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didPopNext() {
+    // Método chamado quando a navegação retorna para essa página
+    _resetState();
+  }
+
+  void _resetState() {
+    setState(() {
+      _itensPedido.clear();
+      _itensSelecionados.clear();
+      _quantidades = 1;
+      _categoriaSelecionada = null;
+      _produtos.clear();
+    });
     _carregarCategorias();
-    _searchController.addListener(_onSearchChanged);
   }
 
   void _carregarCategorias() async {
@@ -89,7 +91,6 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
     }
 
     final ItensPedidoDTO item = ItensPedidoDTO(
-      id: produto.id,
       pedido: widget.pedido,
       produto: produto,
       quantidade: quantidade,
@@ -129,13 +130,17 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
     debugPrint('_fecharPedido chamado');
 
     for (int i = 0; i < _itensSelecionados.length; i++) {
-      debugPrint('ID do Item: ${_itensSelecionados[i].id}');
-      debugPrint('Produto: ${_itensSelecionados[i].produto.nome}');
-      debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
-      debugPrint('Valor Total: ${_itensSelecionados[i].pedido.id}');
+      // debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');
+      // debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
+      // debugPrint('Valor Total: ${_itensSelecionados[i].pedido?.id}');
 
-      _itensPedidoDAO.insert(_itensSelecionados[i]);
+      try {
+        // Tenta inserir o item no banco de dados
+        await _itensPedidoDAO.insert(_itensSelecionados[i]);
+      } catch (e) {
+        debugPrint('Erro ao inserir item: $e');
+      }
     }
 
     Navigator.push(
@@ -166,7 +171,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MinhaAppBar(),
+      appBar: const MinhaAppBar(titulo: 'Carrinho de Produtos'),
       drawer: const MenuLateralEsquerdo(),
       endDrawer: MenuLateralDireito(),
       body: SingleChildScrollView(
@@ -175,23 +180,125 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text('Pedido #${widget.pedido.id}'),
+              const SizedBox(height: 10),
               Text(
-                'Pedido #${widget.pedido.id}',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
+                'Cliente: ${widget.pedido.cliente.nome}',
+              ),
+              Text(
+                'Vendedor: ${widget.pedido.vendedor.nome}',
+              ),
+              Text(
+                'Forma de Pagamento: ${widget.pedido.formaPagamento.descricao}',
+              ),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<CategoriaProdutoDTO>(
+                hint: const Text('Selecione uma categoria'),
+                value: _categoriaSelecionada,
+                onChanged: (CategoriaProdutoDTO? novaCategoria) {
+                  setState(() {
+                    _categoriaSelecionada = novaCategoria;
+                    _produtos.clear();
+                    if (novaCategoria != null) {
+                      _carregarProdutosParaCategoria(novaCategoria.id ?? -1);
+                    } else {
+                      _carregarProdutos();
+                    }
+                  });
+                },
+                items: _categorias.map((categoria) {
+                  final categoriaDTO = CategoriaProdutoDTO(
+                    id: categoria.id,
+                    descricao: categoria.descricao,
+                  );
+                  return DropdownMenuItem<CategoriaProdutoDTO>(
+                    value: categoriaDTO,
+                    child: Text(categoriaDTO.descricao ?? ''),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<ProdutoDTO>(
+                hint: const Text('Selecione um produto'),
+                value: _produtos.isEmpty ? null : _produtos.first,
+                onChanged: (ProdutoDTO? produto) {
+                  if (produto != null) {
+                    _adicionarProdutoAoCarrinho(produto, _quantidades);
+                  }
+                },
+                items: _produtos.map((ProdutoDTO produto) {
+                  return DropdownMenuItem<ProdutoDTO>(
+                    value: produto,
+                    child: Text(produto.nome ?? ''),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  labelText: 'Produto',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.shopping_cart),
+                label: const Text('Adicionar ao Carrinho'),
+                onPressed: () =>
+                    _adicionarProdutoAoCarrinho(_produtos.first, _quantidades),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(255, 143, 205, 255),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      itemCount: _itensSelecionados.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 4.0,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text(
+                                _itensSelecionados[index].produto?.nome ??
+                                    'Nome do Produto'),
+                            subtitle: Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceBetween, // Adicionado para espaço entre os widgets
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text('Quantidade: '),
+                                    SizedBox(
+                                      width: 50,
+                                      child: TextFormField(
+                                        initialValue: _quantidades.toString(),
+                                        onChanged: (value) {
+                                          _alterarQuantidade(
+                                              index, int.tryParse(value) ?? 1);
+                                        },
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                    'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
               ),
-              const SizedBox(height: 10),
-              _buildInfoRow('Cliente:', widget.pedido.cliente.nome ?? 'N/A',
-                  FontAwesomeIcons.user),
-              _buildInfoRow('Vendedor:', widget.pedido.vendedor.nome ?? 'N/A',
-                  FontAwesomeIcons.userTie),
-              _buildInfoRow(
-                  'Forma de Pagamento:',
-                  widget.pedido.formaPagamento.descricao ?? 'N/A',
-                  FontAwesomeIcons.moneyBill),
-              const Divider(),
+              const SizedBox(height: 30),
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -200,70 +307,19 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage> {
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDropdownField<CategoriaProdutoDTO>(
-                        hint: 'Selecione uma categoria',
-                        value: _categoriaSelecionada,
-                        onChanged: (CategoriaProdutoDTO? novaCategoria) {
-                          setState(() {
-                            _categoriaSelecionada = novaCategoria;
-                            _produtos.clear();
-                            if (novaCategoria != null) {
-                              _carregarProdutosParaCategoria(
-                                  novaCategoria.id ?? -1);
-                            } else {
-                              _carregarProdutos();
-                            }
-                          });
-                        },
-                        items: _categorias.map((categoria) {
-                          final categoriaDTO = CategoriaProdutoDTO(
-                            id: categoria.id,
-                            descricao: categoria.descricao,
-                          );
-                          return DropdownMenuItem<CategoriaProdutoDTO>(
-                            value: categoriaDTO,
-                            child: Row(
-                              children: [
-                                const FaIcon(FontAwesomeIcons.boxes),
-                                const SizedBox(width: 10),
-                                Text(categoriaDTO.descricao ?? ''),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          labelText: 'Buscar produto',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.search),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildProductGrid(),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: ElevatedButton.icon(
-                          icon: const FaIcon(FontAwesomeIcons.cartPlus),
-                          label: const Text('Adicionar ao Carrinho'),
-                          onPressed: () => _adicionarProdutoAoCarrinho(
-                              _produtos.first, _quantidades),
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.blue,
-                            textStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child:
+                      Text('Total: R\$ ${_calcularTotal().toStringAsFixed(2)}'),
+                ),
+              ),
+              const SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => _fecharPedido(context),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
                   ),
+                  child: const Text('Fechar Pedido'),
                 ),
               ),
               const SizedBox(height: 20),
