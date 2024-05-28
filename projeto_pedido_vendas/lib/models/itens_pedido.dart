@@ -1,5 +1,4 @@
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
-import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/models/pedido.dart';
 import 'package:projeto_pedido_vendas/models/produto.dart';
 
@@ -20,8 +19,8 @@ class ItensPedido {
   factory ItensPedido.fromItensPedidoDTO(ItensPedidoDTO dto) {
     return ItensPedido(
       id: dto.id,
-      produto: Produto.fromDto(dto.produto!),
-      pedido: Pedido.fromPedidoDTO(dto.pedido!),
+      produto: Produto.fromDto(dto.produto),
+      pedido: Pedido.fromPedidoDTO(dto.pedido),
       quantidade: dto.quantidade,
       valorTotal: dto.valorTotal,
     );

@@ -1,11 +1,6 @@
-import 'dart:convert';
-import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/models/cliente.dart';
 import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
-import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/pagamento.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
 class Pedido {
@@ -26,13 +21,6 @@ class Pedido {
   });
 
   factory Pedido.fromPedidoDTO(PedidoDTO dto) {
-    if (dto.formaPagamento == null ||
-        dto.cliente == null ||
-        dto.vendedor == null) {
-      throw ArgumentError(
-          'Os campos formaPagamento, cliente e vendedor não podem ser nulos');
-    }
-
     return Pedido(
       id: dto.id,
       dataPedido: dto.dataPedido,

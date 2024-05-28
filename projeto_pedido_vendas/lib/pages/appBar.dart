@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_pedido_vendas/dtos/vendedor_dto.dart';
 import 'package:projeto_pedido_vendas/models/vendedor.dart';
 import 'package:projeto_pedido_vendas/repository/vendedor_dao.dart';
 

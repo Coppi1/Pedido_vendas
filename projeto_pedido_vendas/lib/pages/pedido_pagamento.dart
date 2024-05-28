@@ -23,6 +23,6 @@ class _PagamentoPageState extends State<PagamentoPage> {
         appBar: MinhaAppBar(),
         drawer: const MenuLateralEsquerdo(),
         endDrawer: MenuLateralDireito(),
-        body: SingleChildScrollView());
+        body: const SingleChildScrollView());
   }
 }

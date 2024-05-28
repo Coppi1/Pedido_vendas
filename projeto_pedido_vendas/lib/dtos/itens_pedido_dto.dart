@@ -1,10 +1,5 @@
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
-import 'package:projeto_pedido_vendas/models/cliente.dart';
-import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
-import 'package:projeto_pedido_vendas/models/itens_pedido.dart';
-import 'package:projeto_pedido_vendas/models/produto.dart';
-import 'package:projeto_pedido_vendas/models/vendedor.dart';
 
 class ItensPedidoDTO {
   int? id;
@@ -34,8 +29,8 @@ class ItensPedidoDTO {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'pedidoId': pedido?.toJson(),
-      'produto': produto?.toJson(),
+      'pedidoId': pedido.toJson(),
+      'produto': produto.toJson(),
       'quantidade': quantidade,
       'valorTotal': valorTotal,
     };

@@ -40,7 +40,7 @@ class ProdutoDTO {
       'nome': nome,
       'valor': valor,
       'categoriaProduto':
-          categoriaProduto != null ? categoriaProduto!.toJson() : null,
+          categoriaProduto?.toJson(),
     };
   }
 
