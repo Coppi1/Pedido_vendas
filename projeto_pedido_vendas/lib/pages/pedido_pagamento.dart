@@ -292,8 +292,10 @@ class _PagamentoPageState extends State<PagamentoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Detalhes do Pedido',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text(
+                'Detalhes do Pedido',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 20),
               Text('Número do Pedido: ${widget.pedido.id}'),
               Text('Cliente: ${widget.pedido.cliente.nome}'),
@@ -301,122 +303,136 @@ class _PagamentoPageState extends State<PagamentoPage> {
               Text(
                   'Forma de Pagamento: ${widget.pedido.formaPagamento.descricao}'),
               const SizedBox(height: 20),
-              const Text('Carrinho de Produtos',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Carrinho de Produtos',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               Container(
                 constraints: const BoxConstraints(minHeight: 200),
                 child: FutureBuilder<List<ItensPedidoDTO>>(
                   future: _futureItens,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Erro: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('Nenhum item encontrado.'));
-              } else {
-                return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _itens.length,
-                        itemBuilder: (context, index) {
-                          final item = _itens[index];
-                          return ListTile(
-                            title:
-                                Text(item.produto?.nome ?? 'Produto desconhecido'),
-                            subtitle: Text(
-                              'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2) ?? '0.00'}',
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Erro: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text('Nenhum item encontrado.'));
+                    } else {
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                final item = snapshot.data![index];
+                                return ListTile(
+                                  title: Text(item.produto?.nome ??
+                                      'Produto desconhecido'),
+                                  subtitle: Text(
+                                    'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2) ?? '0.00'}',
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () {
+                                          _editarProduto(item.produto!);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {
+                                          _excluirProduto(item.produto!);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    _editarProduto(item.produto!);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    _excluirProduto(item.produto!);
-                                  },
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: _descontoController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    labelText: 'Desconto (%)'),
+                                onChanged: _recalcularValorTotalComDesconto,
+                              ),
                             ),
-                          );
-                      
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _descontoController,
-                      keyboardType: TextInputType.number,
-                      decoration:
-                          const InputDecoration(labelText: 'Desconto (%)'),
-                      onChanged: _recalcularValorTotalComDesconto,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        'Valor Total: R\$ ${_valorTotal.toStringAsFixed(2)}'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        'Valor Total com Desconto: R\$ ${_valorTotalComDesconto.toStringAsFixed(2)}'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _parcelasController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                          labelText: 'Número de Parcelas'),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _vencimentoController,
-                      decoration: const InputDecoration(
-                          labelText: 'Data de Vencimento'),
-                      readOnly: true,
-                      onTap: () => _selectDate(context),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _gerarParcelas(
-                          _parcelasController.text, _vencimentoController.text);
-                    },
-                    child: const Text('Gerar Parcelas'),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _parcelas.length,
-                    itemBuilder: (context, index) {
-                      final parcela = _parcelas[index];
-                      return ListTile(
-                        title: Text(
-                            'Parcela ${parcela['numero']} - Vencimento: ${parcela['vencimento']}'),
-                        subtitle: Text(
-                            'Valor: R\$ ${parcela['valor'].toStringAsFixed(2)}'),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                  'Valor Total: R\$ ${_valorTotal.toStringAsFixed(2)}'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                  'Valor Total com Desconto: R\$ ${_valorTotalComDesconto.toStringAsFixed(2)}'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: _parcelasController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    labelText: 'Número de Parcelas'),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: _vencimentoController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Data de Vencimento'),
+                                readOnly: true,
+                                onTap: () => _selectDate(context),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _gerarParcelas(_parcelasController.text,
+                                    _vencimentoController.text);
+                              },
+                              child: const Text('Gerar Parcelas'),
+                            ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _parcelas.length,
+                              itemBuilder: (context, index) {
+                                final parcela = _parcelas[index];
+                                return ListTile(
+                                  title: Text(
+                                      'Parcela ${parcela['numero']} - Vencimento: ${parcela['vencimento']}'),
+                                  subtitle: Text(
+                                      'Valor: R\$ ${parcela['valor'].toStringAsFixed(2)}'),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       );
-                    },
-                  ),
-                ],
+                    }
+                  },
+                ),
               ),
-            );
-          }
-        },
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // lógica para confirmar o pagamento
+                },
+                child: const Text('Confirmar Pagamento'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
