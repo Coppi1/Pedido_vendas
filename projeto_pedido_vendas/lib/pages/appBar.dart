@@ -69,7 +69,7 @@ class MenuLateralEsquerdo extends StatelessWidget {
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue
+              color: Colors.blue,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,8 +156,8 @@ class MenuLateralDireito extends StatelessWidget {
                               child: ClipOval(
                                 child: Image.asset(
                                   'assets/images/user.png',
-                                  width: 50,
-                                  height: 50,
+                                  width: 75,
+                                  height: 75,
                                   fit: BoxFit.cover,
                                 ),
                               ),

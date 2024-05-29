@@ -36,9 +36,4 @@ class DatabaseHelper {
     final db = await database;
     return await db.query('my_table');
   }
-
-
-  
-
-
 }
