@@ -10,7 +10,6 @@ import 'package:projeto_pedido_vendas/pages/pedido_pagamento.dart';
 import 'package:projeto_pedido_vendas/repository/categoria_produto_dao.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
 import 'package:projeto_pedido_vendas/repository/produto_dao.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PedidoProdutosPage extends StatefulWidget {
   final PedidoDTO pedido;
@@ -24,17 +23,20 @@ class PedidoProdutosPage extends StatefulWidget {
 class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     with RouteAware {
   final List<ItensPedidoDTO> _itensPedido = [];
-  final List<CategoriaProduto> _categorias = [];
+  List<CategoriaProduto> _categorias = [];
   CategoriaProdutoDTO? _categoriaSelecionada;
-  final List<ProdutoDTO> _produtos = [];
+  List<ProdutoDTO> _produtos = [];
   final List<ItensPedidoDTO> _itensSelecionados = [];
-  final int _quantidades = 1;
+  int _quantidades = 1;
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
   final TextEditingController _searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
     _carregarCategorias();
-    _searchController.addListener(onSearchChanged);
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
@@ -107,7 +109,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
       _quantidades = quantidade;
       _itensSelecionados[index].quantidade = quantidade;
       _itensSelecionados[index].valorTotal =
-          (_itensSelecionados[index].produto.valor ?? 0) * quantidade;
+          (_itensSelecionados[index].produto?.valor ?? 0) * quantidade;
     });
   }
 
@@ -130,13 +132,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     debugPrint('_fecharPedido chamado');
 
     for (int i = 0; i < _itensSelecionados.length; i++) {
-      // debugPrint('Produto: ${_itensSelecionados[i].produto?.nome}');
-      // debugPrint('Quantidade: ${_itensSelecionados[i].quantidade}');
-      // debugPrint('Valor Total: ${_itensSelecionados[i].valorTotal}');
-      // debugPrint('Valor Total: ${_itensSelecionados[i].pedido?.id}');
-
       try {
-        // Tenta inserir o item no banco de dados
         await _itensPedidoDAO.insert(_itensSelecionados[i]);
       } catch (e) {
         debugPrint('Erro ao inserir item: $e');
@@ -263,286 +259,63 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                       itemBuilder: (context, index) {
                         return Card(
                           elevation: 4.0,
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          margin: const EdgeInsets.symmetric(vertical: 10.0),
                           child: ListTile(
                             title: Text(
-                                _itensSelecionados[index].produto?.nome ??
-                                    'Nome do Produto'),
-                            subtitle: Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .spaceBetween, // Adicionado para espaço entre os widgets
+                                _itensSelecionados[index].produto?.nome ?? ''),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Text(
+                                  'Quantidade: ${_itensSelecionados[index].quantidade}',
+                                ),
+                                Text(
+                                  'Valor Total: ${_itensSelecionados[index].valorTotal}',
+                                ),
                                 Row(
                                   children: [
-                                    const Text('Quantidade: '),
-                                    SizedBox(
-                                      width: 50,
-                                      child: TextFormField(
-                                        initialValue: _quantidades.toString(),
-                                        onChanged: (value) {
+                                    IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: () {
+                                        if (_quantidades > 1) {
                                           _alterarQuantidade(
-                                              index, int.tryParse(value) ?? 1);
-                                        },
-                                        keyboardType: TextInputType.number,
-                                        textAlign: TextAlign.center,
-                                      ),
+                                              index, _quantidades - 1);
+                                        }
+                                      },
+                                    ),
+                                    Text('$_quantidades'),
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      onPressed: () {
+                                        _alterarQuantidade(
+                                            index, _quantidades + 1);
+                                      },
                                     ),
                                   ],
                                 ),
-                                Text(
-                                    'Total: R\$ ${_itensSelecionados[index].valorTotal!.toStringAsFixed(2)}'),
                               ],
                             ),
                           ),
                         );
                       },
                     ),
-              ),
-              const SizedBox(height: 30),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 4.0,
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child:
-                      Text('Total: R\$ ${_calcularTotal().toStringAsFixed(2)}'),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () => _fecharPedido(context),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red,
                   ),
-                  child: const Text('Fechar Pedido'),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Divider(),
-              const Text(
-                'Itens do Carrinho',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildCartItems(),
-              const Divider(),
-              _buildTotalRow(),
-              const SizedBox(height: 20),
-              Center(
-                child: ElevatedButton.icon(
+                  Text(
+                    'Valor Total do Pedido: ${_calcularTotal()}',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.attach_money),
+                    label: const Text('Finalizar Pedido'),
                     onPressed: () => _fecharPedido(context),
-                    icon: const Icon(Icons.check),
-                    label: const Text('Fechar Pedido'),
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ))),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          FaIcon(
-            icon,
-            size: 16,
-            color: Colors.blueAccent,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(value),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownField<T>({
-    required String hint,
-    required T? value,
-    required Function(T?) onChanged,
-    required List<DropdownMenuItem<T>> items,
-  }) {
-    return DropdownButtonFormField<T>(
-      decoration: InputDecoration(
-        labelText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      value: value,
-      onChanged: onChanged,
-      items: items,
-    );
-  }
-
-  Widget _buildProductGrid() {
-    if (_categoriaSelecionada == null) {
-      return const SizedBox();
-    }
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 3 / 4,
-      ),
-      itemCount: _produtos.length,
-      itemBuilder: (context, index) {
-        final produto = _produtos[index];
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 4.0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(10),
-                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      produto.nome ?? '',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text('R\$ ${produto.valor?.toStringAsFixed(2) ?? '0.00'}'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.minus),
-                          onPressed: () {
-                            if (_quantidades > 1) {
-                              setState(() {
-                                _quantidades--;
-                              });
-                            }
-                          },
-                        ),
-                        Text('$_quantidades'),
-                        IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.plus),
-                          onPressed: () {
-                            setState(() {
-                              _quantidades++;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                ],
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCartItems() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _itensSelecionados.length,
-      itemBuilder: (context, index) {
-        final item = _itensSelecionados[index];
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 4.0,
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          child: ListTile(
-            leading: const FaIcon(FontAwesomeIcons.box),
-            title: Text(item.produto.nome ?? ''),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Quantidade: ${item.quantidade}'),
-                Text(
-                    'Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2) ?? '0.00'}'),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const FaIcon(FontAwesomeIcons.trash),
-              onPressed: () {
-                setState(() {
-                  _itensSelecionados.removeAt(index);
-                });
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTotalRow() {
-    double total = _calcularTotal();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Total:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            'R\$ ${total.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.blueAccent,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
