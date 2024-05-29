@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:projeto_pedido_vendas/dtos/forma_pagamento_dto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'conexao.dart';
-import 'package:projeto_pedido_vendas/models/forma_pagamento.dart';
 
 class FormaPagamentoDAO {
   Future<Database> get _db async => await Conexao.instance.database;

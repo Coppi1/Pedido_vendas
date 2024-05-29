@@ -2,6 +2,8 @@ class CategoriaProduto {
   int? id;
   String? descricao;
 
+  get nome => null;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

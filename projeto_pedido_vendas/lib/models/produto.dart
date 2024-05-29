@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/models/categoria_produto.dart';
@@ -45,7 +44,7 @@ class Produto {
       'nome': nome,
       'valor': valor,
       'categoriaProduto':
-          categoriaProduto != null ? categoriaProduto!.toJson() : null,
+          categoriaProduto?.toJson(),
     };
   }
 

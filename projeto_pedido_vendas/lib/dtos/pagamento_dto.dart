@@ -1,5 +1,3 @@
-import 'package:projeto_pedido_vendas/models/pagamento.dart';
-import 'package:projeto_pedido_vendas/models/pedido.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 
 class PagamentoDTO {

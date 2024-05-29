@@ -1,6 +1,4 @@
 import 'package:projeto_pedido_vendas/repository/conexao.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 
 Future<void> initializeDatabase() async {
   // Obter uma instância do banco de dados

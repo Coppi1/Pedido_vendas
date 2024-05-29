@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
