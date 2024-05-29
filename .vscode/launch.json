@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter (lib\\pages\\login.dart)",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "projeto_pedido_vendas",
+            "program": "lib\\pages\\login.dart"
+        }
+    ]
+}
