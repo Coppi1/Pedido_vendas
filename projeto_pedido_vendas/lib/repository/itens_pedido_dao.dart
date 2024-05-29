@@ -67,7 +67,6 @@ class ItensPedidoDAO {
       whereArgs: [pedidoId],
     );
 
-    // Mapeia os dados do produto associado a cada item
     List<ItensPedidoDTO> itens = [];
     for (var map in maps) {
       int produtoId = map['produtoId'];
@@ -91,6 +90,31 @@ class ItensPedidoDAO {
       'itens_pedido',
       where: 'pedidoId = ?',
       whereArgs: [pedidoId],
+    );
+  }
+
+  Future<void> updateProduto(ProdutoDTO produto) async {
+    final db = await _db;
+    await db.update(
+      'produto',
+      {
+        'marca': produto.marca,
+        'unidade': produto.unidade,
+        'nome': produto.nome,
+        'valor': produto.valor,
+        'categoriaProduto': jsonEncode(produto.categoriaProduto?.toJson()),
+      },
+      where: 'id = ?',
+      whereArgs: [produto.id],
+    );
+  }
+
+  Future<void> deleteProduto(int produtoId) async {
+    final db = await _db;
+    await db.delete(
+      'produto',
+      where: 'id = ?',
+      whereArgs: [produtoId],
     );
   }
 }
