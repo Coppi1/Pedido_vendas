@@ -55,9 +55,11 @@ Future<void> initializeDatabase() async {
   await db.execute('''
     CREATE TABLE vendedor (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT
+      nome TEXT,
+      email TEXT,
+      senha TEXT
     )
-  ''');
+''');
 
   await db.execute('''
     CREATE TABLE produto (
