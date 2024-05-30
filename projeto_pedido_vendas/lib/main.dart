@@ -17,14 +17,13 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Definindo o tema global do aplicativo
       theme: ThemeData(
-        primaryColor: Colors.blue, // Cor de destaque
-        fontFamily: 'Roboto', colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green), // Fonte padrão
-        // Outras propriedades do tema, se necessário
+        primaryColor: Colors.blue,
+        fontFamily: 'Roboto',
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),
       ),
       home: const LoginPage(),
-      navigatorObservers: [routeObserver], // Observador de rotas
+      navigatorObservers: [routeObserver],
     );
   }
 }

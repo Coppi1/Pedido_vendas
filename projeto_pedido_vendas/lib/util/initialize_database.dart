@@ -106,10 +106,14 @@ Future<void> initializeDatabase() async {
 
   await db.insert('vendedor', {
     'nome': 'João Vendedor',
+    'email': 'joao@example.com',
+    'senha': 'senha123',
   });
 
   await db.insert('vendedor', {
-    'nome': 'Vendedo xyz',
+    'nome': 'Vendedor XYZ',
+    'email': 'vendedor@teste.com',
+    'senha': '123',
   });
 
   await db.insert('cliente', {
