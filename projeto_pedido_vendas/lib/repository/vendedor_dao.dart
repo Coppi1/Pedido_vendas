@@ -26,4 +26,31 @@ class VendedorDAO {
       return Vendedor.fromJson(maps[i]);
     });
   }
+
+  Future<int> insert(Vendedor vendedor) async {
+    final db = await _db;
+    print('Inserindo vendedor: ${vendedor.toJson()}');
+    int id = await db.insert(
+      'vendedor',
+      vendedor.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print('Vendedor inserido com ID: $id');
+    return id;
+  }
+
+  // Método obterVendedorPorEmail para buscar um vendedor pelo email
+  Future<Vendedor?> obterVendedorPorEmail(String email) async {
+    final db = await _db;
+    List<Map<String, dynamic>> maps = await db.query(
+      'vendedor',
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+    if (maps.isNotEmpty) {
+      return Vendedor.fromJson(maps.first);
+    } else {
+      return null;
+    }
+  }
 }

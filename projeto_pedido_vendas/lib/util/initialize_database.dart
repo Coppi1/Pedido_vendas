@@ -4,129 +4,118 @@ Future<void> initializeDatabase() async {
   // Obter uma instância do banco de dados
   final db = await Conexao.instance.database;
 
-  // await db.execute('ALTER TABLE pedido ADD COLUMN formaPagamentoId INTEGER');
-
-  // Adicionando a coluna clienteId à tabela pedido
-  // await db.execute('ALTER TABLE pedido ADD COLUMN vendedorId INTEGER');
-
   List<String> tableNames = [
     'cliente',
     'vendedor',
     'produto',
     'forma_pagamento',
     'pedido',
-    'categoria_produto'
+    'categoria_produto',
+    'itens_pedido',
+    'pagamento_pedido'
   ];
 
-  // Excluir todas as tabelas existentes
   for (String tableName in tableNames) {
     await db.execute('DROP TABLE IF EXISTS $tableName');
   }
 
-  // Verificar se a tabela cliente já existe
-  bool clienteTableExists = await Conexao.instance.tableExists('cliente');
-
-  // Verificar se a tabela vendedor já existe
-  bool vendedorTableExists = await Conexao.instance.tableExists('vendedor');
-
-  // Verificar se a tabela produto já existe
-  bool produtoTableExists = await Conexao.instance.tableExists('produto');
-
-  // Verificar se a tabela forma_pagamento já existe
-  bool formaPagamentoTableExists =
-      await Conexao.instance.tableExists('forma_pagamento');
-
-  // Verificar se a tabela pedido já existe
-  bool pedidoTableExists = await Conexao.instance.tableExists('pedido');
-
-  bool categoriaProdutoExists =
-      await Conexao.instance.tableExists('categoria_produto');
-
-  bool itensPedidoExists = await Conexao.instance.tableExists('itens_pedido');
-
-  // Criar a tabela pedido se ela não existir
-  if (!pedidoTableExists) {
-    await db.execute('''
+  await db.execute('''
     CREATE TABLE pedido (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      dataPedido INTEGER,
+      dataPedido DATETIME,
       observacao TEXT,
       formaPagamentoId INTEGER,
       clienteId INTEGER,
-      vendedorId INTEGER
+      vendedorId INTEGER,
+      FOREIGN KEY (formaPagamentoId) REFERENCES forma_pagamento (id),
+      FOREIGN KEY (clienteId) REFERENCES cliente (id),
+      FOREIGN KEY (vendedorId) REFERENCES vendedor (id)
     )
- ''');
-  }
+  ''');
 
-  if (!categoriaProdutoExists) {
-    await db.execute('''
+  await db.execute('''
     CREATE TABLE categoria_produto (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       descricao TEXT
     )
- ''');
-  }
+  ''');
 
-  if (!clienteTableExists) {
-    await db.execute('''
-      CREATE TABLE cliente (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        endereco TEXT,
-        cidade TEXT,
-        nmrCpfCnpj TEXT,
-        vendedorId INTEGER
-      )
-    ''');
-  }
+  await db.execute('''
+    CREATE TABLE cliente (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT,
+      endereco TEXT,
+      cidade TEXT,
+      nmrCpfCnpj TEXT,
+      vendedorId INTEGER,
+      FOREIGN KEY (vendedorId) REFERENCES vendedor (id)
+    )
+  ''');
 
-  if (!vendedorTableExists) {
-    await db.execute('''
-      CREATE TABLE vendedor (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT
-      )
-    ''');
-  }
+  await db.execute('''
+    CREATE TABLE vendedor (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT,
+      email TEXT,
+      senha TEXT
+    )
+''');
 
-  if (!produtoTableExists) {
-    await db.execute('''
-      CREATE TABLE produto (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        marca TEXT,
-        unidade TEXT,
-        categoriaProdutoId INTEGER,
-        nome TEXT,
-        valor REAL
-      )
-    ''');
-  }
+  await db.execute('''
+    CREATE TABLE produto (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      marca TEXT,
+      unidade TEXT,
+      categoriaProdutoId INTEGER,
+      nome TEXT,
+      valor REAL,
+      FOREIGN KEY (categoriaProdutoId) REFERENCES categoria_produto (id)
+    )
+  ''');
 
-  if (!formaPagamentoTableExists) {
-    await db.execute('''
-      CREATE TABLE forma_pagamento (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        descricao TEXT
-      )
-    ''');
-  }
+  await db.execute('''
+    CREATE TABLE forma_pagamento (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      descricao TEXT
+    )
+  ''');
 
-  if (!itensPedidoExists) {
-    await db.execute('''
-      CREATE TABLE itens_pedido (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        descricao TEXT
-      )
-    ''');
-  }
+  await db.execute('''
+    CREATE TABLE itens_pedido (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pedidoId INTEGER,
+      produtoId INTEGER,
+      quantidade INTEGER,
+      valorTotal REAL,
+      FOREIGN KEY (pedidoId) REFERENCES pedido (id),
+      FOREIGN KEY (produtoId) REFERENCES produto (id)
+    )
+  ''');
+
+  await db.execute('''
+    CREATE TABLE pagamento_pedido (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      parcela INTEGER,
+      valorTotal REAL,
+      desconto REAL,
+      dataVencimento TEXT,
+      pedidoId INTEGER,
+      FOREIGN KEY (pedidoId) REFERENCES pedido (id)
+    )
+  ''');
 
   await db.insert('vendedor', {
     'nome': 'João Vendedor',
+    'email': 'joao@example.com',
+    'senha': 'senha123',
   });
 
   await db.insert('vendedor', {
-    'nome': 'Vendedo xyz',
+    'nome': 'Vendedor XYZ',
+    'email': 'vendedor@teste.com',
+    'senha': '123',
   });
+
   await db.insert('cliente', {
     'nome': 'Chupacabra',
     'endereco': 'Rua das Flores, 123',
@@ -142,6 +131,7 @@ Future<void> initializeDatabase() async {
     'nmrCpfCnpj': '123.456.789-00',
     'vendedorId': 1,
   });
+
   await db.insert('forma_pagamento', {
     'descricao': 'Dinheiro',
   });
@@ -175,18 +165,34 @@ Future<void> initializeDatabase() async {
   });
 
   await db.insert('produto', {
-    'marca': 'Marca1',
-    'unidade': 'Unidade1',
+    'marca': 'Ajax',
+    'unidade': 'Litro',
     'categoriaProdutoId': 1,
-    'nome': 'Produto1',
-    'valor': 10.50,
+    'nome': 'Desinfetante Multiuso',
+    'valor': 5.99,
   });
 
   await db.insert('produto', {
-    'marca': 'Marca2',
-    'unidade': 'Unidade2',
+    'marca': 'Natura',
+    'unidade': 'Mililitro',
     'categoriaProdutoId': 2,
-    'nome': 'Produto2',
-    'valor': 20.75,
+    'nome': 'Eau de Toilette Feminino',
+    'valor': 89.90,
+  });
+
+  await db.insert('produto', {
+    'marca': 'Tigre',
+    'unidade': 'Metro',
+    'categoriaProdutoId': 3,
+    'nome': 'Tubo PVC',
+    'valor': 15.00,
+  });
+
+  await db.insert('produto', {
+    'marca': 'Philips',
+    'unidade': 'Unidade',
+    'categoriaProdutoId': 4,
+    'nome': 'Lâmpada LED',
+    'valor': 12.50,
   });
 }

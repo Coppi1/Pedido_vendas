@@ -10,7 +10,7 @@ class Conexao {
   static const _sqlScriptCliente =
       'CREATE TABLE cliente(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, endereco TEXT, cidade TEXT, nmrCpfCnpj TEXT, vendedorId INTEGER)';
   static const _sqlScriptVendedor =
-      'CREATE TABLE vendedor(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT)';
+      'CREATE TABLE vendedor(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, email TEXT, senha TEXT)';
 
   static const tablePedido = 'pedido';
   static const tableProduto = 'produto';

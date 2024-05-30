@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_pedido_vendas/pages/pedido_inserir.dart';
+import 'package:projeto_pedido_vendas/pages/login.dart';
 import 'package:projeto_pedido_vendas/util/initialize_database.dart';
+
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,12 +12,18 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: PedidoCadastro(),
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        fontFamily: 'Roboto',
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),
+      ),
+      home: const LoginPage(),
+      navigatorObservers: [routeObserver],
     );
   }
 }

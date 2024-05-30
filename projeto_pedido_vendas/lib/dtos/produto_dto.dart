@@ -5,7 +5,6 @@ class ProdutoDTO {
   int? id;
   String? marca;
   String? unidade;
-
   String? nome;
   double? valor;
   CategoriaProdutoDTO? categoriaProduto;
@@ -39,8 +38,7 @@ class ProdutoDTO {
       'unidade': unidade,
       'nome': nome,
       'valor': valor,
-      'categoriaProduto':
-          categoriaProduto?.toJson(),
+      'categoriaProduto': categoriaProduto?.toJson(),
     };
   }
 
