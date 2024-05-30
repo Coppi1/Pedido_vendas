@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
+import 'package:intl/intl.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
-import 'package:intl/intl.dart';
 
 class PagamentoPage extends StatefulWidget {
   final PedidoDTO pedido;
+  final List<ItensPedidoDTO> itens;
 
-  const PagamentoPage({Key? key, required this.pedido}) : super(key: key);
+  const PagamentoPage({Key? key, required this.pedido, required this.itens})
+      : super(key: key);
 
   @override
   _PagamentoPageState createState() => _PagamentoPageState();
@@ -22,8 +24,8 @@ class _PagamentoPageState extends State<PagamentoPage> {
   double _valorTotal = 0;
   double _desconto = 0;
   double _valorTotalComDesconto = 0;
+  late List<ItensPedidoDTO> _itens = []; // Declaração da variável _itens
   final List<Map<String, dynamic>> _parcelas = [];
-  List<ItensPedidoDTO> _itens = [];
 
   @override
   void initState() {
@@ -41,9 +43,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
       }
       List<ItensPedidoDTO> itens =
           await ItensPedidoDAO().selectByPedido(widget.pedido.id!);
-      setState(() {
-        _itens = itens;
-      });
+      _itens = itens; // Atribuição dos itens ao _itens
       _calcularValorTotal(itens);
       return itens;
     } catch (e) {
