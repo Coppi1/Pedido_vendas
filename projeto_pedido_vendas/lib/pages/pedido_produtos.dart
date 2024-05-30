@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:projeto_pedido_vendas/dtos/categoria_produto_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
@@ -118,6 +119,11 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
         0, (total, item) => total + (item.valorTotal ?? 0));
   }
 
+  String _formatarValor(double valor) {
+    final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    return formatador.format(valor);
+  }
+
   void _fecharPedido(BuildContext context) async {
     if (_itensSelecionados.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -162,6 +168,14 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void removerIten(int index, int pedidoId, int produtoId) async {
+    ItensPedidoDAO itensPedidoDAO = ItensPedidoDAO();
+    await itensPedidoDAO.delete(pedidoId, produtoId);
+    setState(() {
+      _itensSelecionados.removeAt(index);
+    });
   }
 
   @override
@@ -252,56 +266,86 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      itemCount: _itensSelecionados.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 4.0,
-                          margin: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: ListTile(
-                            title: Text(
-                                _itensSelecionados[index].produto?.nome ?? ''),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Quantidade: ${_itensSelecionados[index].quantidade}',
-                                ),
-                                Text(
-                                  'Valor Total: ${_itensSelecionados[index].valorTotal}',
-                                ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.remove),
-                                      onPressed: () {
-                                        if (_quantidades > 1) {
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: SizedBox(
+                      height: 350,
+                      child: ListView.builder(
+                        itemCount: _itensSelecionados.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 4.0,
+                            margin: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: ListTile(
+                              title: Text(
+                                _itensSelecionados[index].produto?.nome ?? '',
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Quantidade: ${_itensSelecionados[index].quantidade}',
+                                  ),
+                                  Text(
+                                    'Valor Total: ${_formatarValor(_itensSelecionados[index].valorTotal ?? 0)}',
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          if ((_itensSelecionados[index]
+                                                      .quantidade ??
+                                                  0) >
+                                              1) {
+                                            _alterarQuantidade(
+                                              index,
+                                              (_itensSelecionados[index]
+                                                          .quantidade ??
+                                                      1) -
+                                                  1,
+                                            );
+                                          } else {
+                                            removerIten(
+                                              index,
+                                              widget.pedido.id ?? 0,
+                                              _itensSelecionados[index]
+                                                      .produto
+                                                      ?.id ??
+                                                  0,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      Text(
+                                          '${_itensSelecionados[index].quantidade}'),
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
                                           _alterarQuantidade(
-                                              index, _quantidades - 1);
-                                        }
-                                      },
-                                    ),
-                                    Text('$_quantidades'),
-                                    IconButton(
-                                      icon: const Icon(Icons.add),
-                                      onPressed: () {
-                                        _alterarQuantidade(
-                                            index, _quantidades + 1);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                            index,
+                                            (_itensSelecionados[index]
+                                                        .quantidade ??
+                                                    0) +
+                                                1,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                   Text(
-                    'Valor Total do Pedido: ${_calcularTotal()}',
+                    'Valor Total do Pedido: ${_formatarValor(_calcularTotal())}',
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),

@@ -201,6 +201,11 @@ class _PagamentoPageState extends State<PagamentoPage> {
     }
   }
 
+  String _formatarValor(double valor) {
+    final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    return formatador.format(valor);
+  }
+
   void _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -334,7 +339,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
                                   title: Text(item.produto?.nome ??
                                       'Produto desconhecido'),
                                   subtitle: Text(
-                                    'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${item.valorTotal?.toStringAsFixed(2) ?? '0.00'}',
+                                    'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${_formatarValor(item.valorTotal ?? 0)}',
                                   ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -369,12 +374,14 @@ class _PagamentoPageState extends State<PagamentoPage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                  'Valor Total: R\$ ${_valorTotal.toStringAsFixed(2)}'),
+                                'Valor Total: R\$ ${_valorTotal.toStringAsFixed(2)}',
+                              ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                  'Valor Total com Desconto: R\$ ${_valorTotalComDesconto.toStringAsFixed(2)}'),
+                                'Valor Total com Desconto: R\$ ${_formatarValor(_valorTotalComDesconto)}',
+                              ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -412,7 +419,8 @@ class _PagamentoPageState extends State<PagamentoPage> {
                                   title: Text(
                                       'Parcela ${parcela['numero']} - Vencimento: ${parcela['vencimento']}'),
                                   subtitle: Text(
-                                      'Valor: R\$ ${parcela['valor'].toStringAsFixed(2)}'),
+                                    'Valor: R\$ ${_formatarValor(parcela['valor'].toStringAsFixed(2))}',
+                                  ),
                                 );
                               },
                             ),
