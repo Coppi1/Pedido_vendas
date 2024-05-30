@@ -173,6 +173,22 @@ Future<void> initializeDatabase() async {
   });
 
   await db.insert('produto', {
+    'marca': 'Nescau',
+    'unidade': 'unidade',
+    'categoriaProdutoId': 1,
+    'nome': 'Nescau Ball',
+    'valor': 5.99,
+  });
+
+  await db.insert('produto', {
+    'marca': 'Bomba',
+    'unidade': 'Litro',
+    'categoriaProdutoId': 1,
+    'nome': 'Bomba',
+    'valor': 100.09,
+  });
+
+  await db.insert('produto', {
     'marca': 'Natura',
     'unidade': 'Mililitro',
     'categoriaProdutoId': 2,
