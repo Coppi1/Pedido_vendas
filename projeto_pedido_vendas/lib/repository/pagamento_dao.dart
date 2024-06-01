@@ -7,27 +7,14 @@ class PagamentoDAO {
 
   Future<void> insert(PagamentoDTO pagamento) async {
     final db = await _db;
-    await db.insert(
-      'pagamento',
-      pagamento.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<void> update(PagamentoDTO pagamento) async {
-    final db = await _db;
-    await db.update(
-      'pagamento',
-      pagamento.toJson(),
-      where: 'id = ?',
-      whereArgs: [pagamento.id],
-    );
+    await db.insert('pagamento_pedido', pagamento.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> delete(int id) async {
     final db = await _db;
     await db.delete(
-      'pagamento',
+      'pagamento_pedido',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -36,11 +23,25 @@ class PagamentoDAO {
   Future<PagamentoDTO?> select(int id) async {
     final db = await _db;
     List<Map<String, dynamic>> maps =
-        await db.query('pagamento', where: 'id = ?', whereArgs: [id]);
+        await db.query('pagamento_pedido', where: 'id = ?', whereArgs: [id]);
     if (maps.isNotEmpty) {
       return PagamentoDTO.fromJson(maps.first);
     } else {
       return null;
     }
+  }
+
+  Future<void> updateDescontoEVencimento(
+      int pagamentoId, double desconto, String dataVencimento) async {
+    final db = await _db;
+    await db.update(
+      'pagamento_pedido',
+      {
+        'desconto': desconto,
+        'dataVencimento': dataVencimento,
+      },
+      where: 'id = ?',
+      whereArgs: [pagamentoId],
+    );
   }
 }

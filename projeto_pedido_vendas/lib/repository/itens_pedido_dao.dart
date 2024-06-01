@@ -116,4 +116,14 @@ class ItensPedidoDAO {
       whereArgs: [produtoId],
     );
   }
+
+  Future<void> updateQuantidade(int itemId, int novaQuantidade) async {
+    final db = await _db;
+    await db.update(
+      'itens_pedido',
+      {'quantidade': novaQuantidade},
+      where: 'id = ?',
+      whereArgs: [itemId],
+    );
+  }
 }

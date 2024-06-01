@@ -2,7 +2,7 @@ import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 
 class PagamentoDTO {
   int? id;
-  int parcela;
+  int parcelas;
   double valorTotal;
   double desconto;
   String dataVencimento;
@@ -10,7 +10,7 @@ class PagamentoDTO {
 
   PagamentoDTO({
     this.id,
-    required this.parcela,
+    required this.parcelas,
     required this.valorTotal,
     required this.desconto,
     required this.dataVencimento,
@@ -20,7 +20,7 @@ class PagamentoDTO {
   factory PagamentoDTO.fromJson(Map<String, dynamic> json) {
     return PagamentoDTO(
       id: json['id'],
-      parcela: json['parcelas'],
+      parcelas: json['parcelas'],
       valorTotal: json['valorTotal'],
       desconto: json['desconto'],
       dataVencimento: json['dataVencimento'],
@@ -33,33 +33,11 @@ class PagamentoDTO {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'parcelas': parcela,
+      'parcelas': parcelas,
       'valorTotal': valorTotal,
       'desconto': desconto,
       'dataVencimento': dataVencimento,
       'pedido': pedido?.toJson(),
     };
   }
-
-  // factory PagamentoDTO.fromPagamento(Pagamento pagamento) {
-  //   return PagamentoDTO(
-  //     id: pagamento.id,
-  //     parcelas: pagamento.parcelas,
-  //     valorTotal: pagamento.valorTotal,
-  //     desconto: pagamento.desconto,
-  //     dataVencimento: pagamento.dataVencimento.toIso8601String(),
-  //     pedido: PedidoDTO.fromPedido(pagamento.pedido),
-  //   );
-  // }
-
-  // Pagamento toPagamento() {
-  //   return Pagamento(
-  //     id: id,
-  //     parcelas: parcelas,
-  //     valorTotal: valorTotal,
-  //     desconto: desconto,
-  //     dataVencimento: DateTime.parse(dataVencimento),
-  //     pedido: pedido!.toPedido(),
-  //   );
-  // }
 }

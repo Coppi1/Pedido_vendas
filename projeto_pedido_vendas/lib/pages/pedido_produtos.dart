@@ -90,7 +90,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     });
   }
 
-  void _adicionarProdutoAoCarrinho(ProdutoDTO produto, int quantidade) {
+  void _adicionarProdutoAoCarrinho(ProdutoDTO produto) {
     if (produto.id == null) {
       debugPrint("Erro: Produto sem ID");
       return;
@@ -99,14 +99,14 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     final ItensPedidoDTO item = ItensPedidoDTO(
       pedido: widget.pedido,
       produto: produto,
-      quantidade: quantidade,
-      valorTotal: (produto.valor ?? 0) * quantidade,
+      quantidade: _quantidadesSelecionadas[produto.id!] ?? 1,
+      valorTotal:
+          (produto.valor ?? 0) * (_quantidadesSelecionadas[produto.id!] ?? 1),
     );
     setState(() {
       _itensPedido.add(item);
       _itensSelecionados.add(item);
-      _quantidadesSelecionadas[produto.id!] =
-          quantidade; // Atualize a quantidade selecionada para o produto
+      _quantidadesSelecionadas[produto.id!] = _quantidadeSelecionada;
     });
   }
 
@@ -250,7 +250,21 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildProductGrid(),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.8,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: _produtos.length,
+                        itemBuilder: (context, index) {
+                          return _buildProductGrid(_produtos[index]);
+                        },
+                      )
                     ],
                   ),
                 ),
@@ -336,121 +350,95 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
     );
   }
 
-  Widget _buildProductGrid() {
-    if (_categoriaSelecionada == null) {
-      return const SizedBox();
-    }
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 3 / 4,
+  Widget _buildProductGrid(ProdutoDTO produto) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
       ),
-      itemCount: _produtos.length,
-      itemBuilder: (context, index) {
-        final produto = _produtos[index];
-        // Verificar se o produto corresponde ao termo de busca
-        if (_searchController.text.isNotEmpty &&
-            !produto.nome!
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase())) {
-          return const SizedBox();
-        }
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 4.0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(10),
-                    ),
-                  ),
-                ),
+      elevation: 4.0,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            title: Text(
+              produto.nome ?? '',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            subtitle: Text(
+              _formatarValor(produto.valor ?? 0),
+              style: const TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () {
+                        setState(() {
+                          _quantidadesSelecionadas[produto.id!] =
+                              (_quantidadesSelecionadas[produto.id!] ?? 1) - 1;
+                          if (_quantidadesSelecionadas[produto.id!]! < 1) {
+                            _quantidadesSelecionadas[produto.id!] = 1;
+                          }
+                        });
+                      },
+                    ),
                     Text(
-                      produto.nome ?? '',
+                      '${_quantidadesSelecionadas[produto.id!] ?? 1}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                    Text('R\$ ${produto.valor?.toStringAsFixed(2) ?? '0.00'}'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.minus),
-                          onPressed: () {
-                            final id = produto.id;
-                            if (id != null &&
-                                _quantidadesSelecionadas.containsKey(id) &&
-                                _quantidadesSelecionadas[id]! > 1) {
-                              setState(() {
-                                _quantidadesSelecionadas[id] =
-                                    _quantidadesSelecionadas[id]! - 1;
-                              });
-                            }
-                          },
-                        ),
-                        Text(
-                          _quantidadesSelecionadas[produto.id!]?.toString() ??
-                              '0', // Corrigindo para verificar se a chave existe antes de acessar
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.plus),
-                          onPressed: () {
-                            final id = produto.id;
-                            if (id != null) {
-                              setState(() {
-                                _quantidadesSelecionadas[id] =
-                                    (_quantidadesSelecionadas[id] ?? 0) + 1;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _adicionarProdutoAoCarrinho(
-                              produto, _quantidadeSelecionada);
-                          _resetQuantity();
-                        },
-                        child: const Text('Adicionar ao Carrinho'),
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          _quantidadesSelecionadas[produto.id!] =
+                              (_quantidadesSelecionadas[produto.id!] ?? 1) + 1;
+                        });
+                      },
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  icon: const FaIcon(
+                    FontAwesomeIcons.cartPlus,
+                    size: 16, // Ajuste de tamanho do ícone
+                  ),
+                  onPressed: () => _adicionarProdutoAoCarrinho(produto),
+                  label: const Text('Adicionar ao Carrinho'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 12, // Ajuste de tamanho do texto
+                    ),
+                    minimumSize:
+                        const Size(0, 24), // Ajuste de tamanho mínimo do botão
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
-  }
-
-  void _resetQuantity() {
-    setState(() {
-      _quantidadeSelecionada = 1;
-    });
   }
 
   Widget _buildCartItems() {
@@ -509,6 +497,12 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   void _removerItemDoCarrinho(int index) {
     setState(() {
       _itensPedido.removeAt(index);
+    });
+  }
+
+  void _resetQuantity() {
+    setState(() {
+      _quantidadeSelecionada = 1;
     });
   }
 

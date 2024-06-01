@@ -95,13 +95,24 @@ Future<void> initializeDatabase() async {
   await db.execute('''
     CREATE TABLE pagamento_pedido (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      parcela INTEGER,
+      parcelas INTEGER,
       valorTotal REAL,
       desconto REAL,
       dataVencimento TEXT,
       pedidoId INTEGER,
       FOREIGN KEY (pedidoId) REFERENCES pedido (id)
     )
+  ''');
+
+  await db.execute('''
+    CREATE TABLE pagamento_parcela (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      parcela INTEGER,
+      valor REAL,
+      desconto REAL,
+      dataVencimento TEXT,
+      pedidoId INTEGER,
+      FOREIGN KEY (pedidoId) REFERENCES pedido (id)
   ''');
 
   await db.insert('vendedor', {

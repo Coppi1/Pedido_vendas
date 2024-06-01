@@ -74,69 +74,42 @@ class _PagamentoPageState extends State<PagamentoPage> {
     }
   }
 
-  void _editarProduto(ProdutoDTO produto) async {
-    // Exibir um diálogo para editar os detalhes do produto
-    final ProdutoDTO? produtoEditado = await showDialog<ProdutoDTO>(
+  void _editarProduto(ItensPedidoDTO itemPedido) async {
+    final int? quantidadeAtual = itemPedido.quantidade;
+    final TextEditingController quantidadeController =
+        TextEditingController(text: quantidadeAtual?.toString() ?? '');
+
+    final int? quantidadeEditada = await showDialog<int>(
       context: context,
       builder: (context) {
-        final TextEditingController nomeController =
-            TextEditingController(text: produto.nome);
-        final TextEditingController marcaController =
-            TextEditingController(text: produto.marca);
-        final TextEditingController unidadeController =
-            TextEditingController(text: produto.unidade);
-        final TextEditingController valorController =
-            TextEditingController(text: produto.valor?.toString());
-
         return AlertDialog(
-          title: const Text('Editar Produto'),
+          title: const Text('Editar Quantidade'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: nomeController,
-                decoration: const InputDecoration(labelText: 'Nome'),
-              ),
-              TextField(
-                controller: marcaController,
-                decoration: const InputDecoration(labelText: 'Marca'),
-              ),
-              TextField(
-                controller: unidadeController,
-                decoration: const InputDecoration(labelText: 'Unidade'),
-              ),
-              TextField(
-                controller: valorController,
-                decoration: const InputDecoration(labelText: 'Valor'),
+                controller: quantidadeController,
                 keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Quantidade'),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(quantidadeAtual);
               },
               child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                final double? valorEditado =
-                    double.tryParse(valorController.text);
-                if (valorEditado != null) {
-                  final ProdutoDTO produtoAtualizado = ProdutoDTO(
-                    id: produto.id,
-                    nome: nomeController.text,
-                    marca: marcaController.text,
-                    unidade: unidadeController.text,
-                    valor: valorEditado,
-                    categoriaProduto: produto.categoriaProduto,
-                  );
-                  Navigator.of(context).pop(produtoAtualizado);
+                final int? novaQuantidade =
+                    int.tryParse(quantidadeController.text);
+                if (novaQuantidade != null && novaQuantidade > 0) {
+                  Navigator.of(context).pop(novaQuantidade);
                 } else {
-                  // Exibir uma mensagem de erro caso o valor seja inválido
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Valor inválido')),
+                    const SnackBar(content: Text('Quantidade inválida')),
                   );
                 }
               },
@@ -147,19 +120,19 @@ class _PagamentoPageState extends State<PagamentoPage> {
       },
     );
 
-    if (produtoEditado != null) {
-      // Atualizar o produto na lista de itens
+    if (quantidadeEditada != null) {
       setState(() {
-        final itemIndex =
-            _itens.indexWhere((item) => item.produto?.id == produto.id);
-        if (itemIndex != -1) {
-          _itens[itemIndex].produto = produtoEditado;
-          _calcularValorTotal(_itens);
+        itemPedido.quantidade = quantidadeEditada;
+        if (itemPedido.produto != null && itemPedido.produto!.valor != null) {
+          itemPedido.valorTotal =
+              itemPedido.produto!.valor! * quantidadeEditada;
         }
+
+        _calcularValorTotal(_itens);
       });
 
-      // Atualizar o produto no banco de dados
-      await ItensPedidoDAO().updateProduto(produtoEditado);
+      await ItensPedidoDAO()
+          .updateQuantidade(itemPedido.id!, quantidadeEditada);
     }
   }
 
@@ -260,10 +233,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
 
   Future<void> _inserirParcelaNoBanco(int parcela, double valorTotal,
       double desconto, String dataVencimento, int pedidoId) async {
-    // Substitua esta parte pela sua lógica de inserção no banco de dados
     try {
-      // Implemente a lógica para inserir a parcela no banco de dados
-      // Exemplo:
       // await ParcelaPedidoDAO().insert(ParcelaPedidoDTO(
       //   parcela: parcela,
       //   valorTotal: valorTotal,
@@ -275,6 +245,22 @@ class _PagamentoPageState extends State<PagamentoPage> {
           'Parcela $parcela inserida no banco de dados com valor $valorTotal e vencimento $dataVencimento');
     } catch (e) {
       print('Erro ao inserir parcela no banco de dados: $e');
+    }
+  }
+
+  void _confirmarPagamento() async {
+    try {
+      // await PagamentoDAO().insert(PagamentoDTO(
+      //   parcela: _parcelasController.text,
+      //   valorTotal: _valorTotal,
+      //   desconto: _desconto,
+      //   dataVencimento: _vencimentoController.text,
+      //   pedido: widget.pedido,
+      // ));
+      print('Pagamento confirmado com sucesso!');
+      // Você pode adicionar mais lógica aqui, como navegar para outra tela
+    } catch (e) {
+      print('Erro ao confirmar o pagamento: $e');
     }
   }
 
@@ -347,7 +333,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
                                       IconButton(
                                         icon: const Icon(Icons.edit),
                                         onPressed: () {
-                                          _editarProduto(item.produto!);
+                                          _editarProduto(item);
                                         },
                                       ),
                                       IconButton(
@@ -374,8 +360,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                'Valor Total: R\$ ${_valorTotal.toStringAsFixed(2)}',
-                              ),
+                                  'Valor Total: R\$ ${_formatarValor(_valorTotal)}'),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -419,8 +404,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
                                   title: Text(
                                       'Parcela ${parcela['numero']} - Vencimento: ${parcela['vencimento']}'),
                                   subtitle: Text(
-                                    'Valor: R\$ ${_formatarValor(parcela['valor'].toStringAsFixed(2))}',
-                                  ),
+                                      'Valor: R\$ ${_formatarValor(parcela['valor'])}'),
                                 );
                               },
                             ),
@@ -434,7 +418,7 @@ class _PagamentoPageState extends State<PagamentoPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // lógica para confirmar o pagamento
+                  _confirmarPagamento();
                 },
                 child: const Text('Confirmar Pagamento'),
               ),
