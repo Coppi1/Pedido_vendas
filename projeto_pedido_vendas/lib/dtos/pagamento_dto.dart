@@ -24,9 +24,8 @@ class PagamentoDTO {
       valorTotal: json['valorTotal'],
       desconto: json['desconto'],
       dataVencimento: json['dataVencimento'],
-      pedido: json.containsKey('pedido')
-          ? PedidoDTO.fromJson(json['pedido'])
-          : null,
+      pedido:
+          json['pedido'] != null ? PedidoDTO.fromJson(json['pedido']) : null,
     );
   }
 
@@ -37,7 +36,7 @@ class PagamentoDTO {
       'valorTotal': valorTotal,
       'desconto': desconto,
       'dataVencimento': dataVencimento,
-      'pedido': pedido?.toJson(),
+      'pedidoId': pedido?.id,
     };
   }
 }

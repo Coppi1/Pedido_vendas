@@ -497,6 +497,8 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   void _removerItemDoCarrinho(int index) {
     setState(() {
       _itensPedido.removeAt(index);
+      _itensSelecionados
+          .removeAt(index); // Add this line to remove from _itensSelecionados
     });
   }
 

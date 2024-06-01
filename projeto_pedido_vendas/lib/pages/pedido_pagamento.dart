@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:projeto_pedido_vendas/dtos/itens_pedido_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/pagamento_dto.dart';
+import 'package:projeto_pedido_vendas/dtos/pagamento_parcela_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/pedido_dto.dart';
 import 'package:projeto_pedido_vendas/dtos/produto_dto.dart';
 import 'package:projeto_pedido_vendas/repository/itens_pedido_dao.dart';
+import 'package:projeto_pedido_vendas/repository/pagamento_dao.dart';
+import 'package:projeto_pedido_vendas/repository/pagamento_parcela_dao.dart';
 
 class PagamentoPage extends StatefulWidget {
   final PedidoDTO pedido;
@@ -179,18 +183,14 @@ class _PagamentoPageState extends State<PagamentoPage> {
     return formatador.format(valor);
   }
 
-  void _selectDate(BuildContext context) async {
+  Future<DateTime?> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != DateTime.now()) {
-      setState(() {
-        _vencimentoController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
+    return picked;
   }
 
   void _recalcularValorTotalComDesconto(String desconto) {
@@ -200,10 +200,10 @@ class _PagamentoPageState extends State<PagamentoPage> {
     });
   }
 
-  void _gerarParcelas(String parcelas, String vencimento) {
+  void _previewParcelas() {
     setState(() {
       _parcelas.clear();
-      int numParcelas = int.tryParse(parcelas) ?? 0;
+      int numParcelas = int.tryParse(_parcelasController.text) ?? 0;
       double valorParcela = _valorTotalComDesconto / numParcelas;
 
       for (int i = 0; i < numParcelas; i++) {
@@ -211,56 +211,80 @@ class _PagamentoPageState extends State<PagamentoPage> {
           'numero': i + 1,
           'vencimento': DateFormat('yyyy-MM-dd').format(
             DateFormat('yyyy-MM-dd')
-                .parse(vencimento)
-                .add(Duration(days: 30 * (i + 1))),
+                .parse(_vencimentoController.text)
+                .add(Duration(days: 30 * i)),
           ),
           'valor': valorParcela,
         };
         _parcelas.add(parcelaInfo);
-
-        // Chama o método para inserir a parcela no banco de dados
-        _inserirParcelaNoBanco(i + 1, valorParcela, _desconto,
-                parcelaInfo['vencimento'], widget.pedido.id!)
-            .then((_) {
-          // Você pode querer atualizar a UI ou mostrar uma mensagem de sucesso aqui
-        }).catchError((error) {
-          // Trate possíveis erros aqui
-          print('Erro ao inserir parcela: $error');
-        });
       }
     });
   }
 
-  Future<void> _inserirParcelaNoBanco(int parcela, double valorTotal,
-      double desconto, String dataVencimento, int pedidoId) async {
+  Future<void> _inserirParcelaNoBanco(int parcela, double valor,
+      double desconto, String dataVencimento, int pagamentoId) async {
     try {
-      // await ParcelaPedidoDAO().insert(ParcelaPedidoDTO(
-      //   parcela: parcela,
-      //   valorTotal: valorTotal,
-      //   desconto: desconto,
-      //   dataVencimento: dataVencimento,
-      //   pedidoId: pedidoId,
-      // ));
-      print(
-          'Parcela $parcela inserida no banco de dados com valor $valorTotal e vencimento $dataVencimento');
+      // Buscar o pagamento correspondente ao pagamentoId
+      PagamentoDTO? pagamentoDTO = await _buscarPagamentoPorId(pagamentoId);
+
+      // Verificar se o pagamento é válido antes de continuar
+      if (pagamentoDTO != null) {
+        await PagamentoParcelaDAO().insert(PagamentoParcelaDTO(
+          parcela: parcela,
+          valor: valor,
+          desconto: desconto,
+          dataVencimento: dataVencimento,
+          pagamento: pagamentoDTO,
+        ));
+        print(
+            'Parcela $parcela inserida no banco de dados com valor $valor e vencimento $dataVencimento');
+      } else {
+        print('Pagamento não encontrado para o ID fornecido: $pagamentoId');
+      }
     } catch (e) {
       print('Erro ao inserir parcela no banco de dados: $e');
     }
   }
 
+  // Função para buscar pagamento pelo ID
+  Future<PagamentoDTO?> _buscarPagamentoPorId(int pagamentoId) async {
+    PagamentoDTO? pagamento =
+        await PagamentoDAO().buscarPagamentoPorId(pagamentoId);
+    return pagamento;
+  }
+
   void _confirmarPagamento() async {
     try {
-      // await PagamentoDAO().insert(PagamentoDTO(
-      //   parcela: _parcelasController.text,
-      //   valorTotal: _valorTotal,
-      //   desconto: _desconto,
-      //   dataVencimento: _vencimentoController.text,
-      //   pedido: widget.pedido,
-      // ));
+      // Primeiro, insere o pagamento
+      PagamentoDTO pagamento = PagamentoDTO(
+        parcelas: int.parse(_parcelasController.text),
+        valorTotal: _valorTotal,
+        desconto: _desconto,
+        dataVencimento: _vencimentoController.text,
+        pedido: widget.pedido,
+      );
+
+      await PagamentoDAO().insert(pagamento);
+
       print('Pagamento confirmado com sucesso!');
-      // Você pode adicionar mais lógica aqui, como navegar para outra tela
+
+      // Agora, insere as parcelas no banco de dados
+      int? pagamentoId = pagamento.id; // Evita null safety issue
+      if (pagamentoId != null) {
+        for (var parcela in _parcelas) {
+          await _inserirParcelaNoBanco(
+            parcela['numero'],
+            parcela['valor'],
+            _desconto,
+            parcela['vencimento'],
+            pagamentoId,
+          );
+        }
+      } else {
+        print('ID do pagamento é nulo');
+      }
     } catch (e) {
-      print('Erro ao confirmar o pagamento: $e');
+      print('Erro ao confirmar pagamento: $e');
     }
   }
 
@@ -268,161 +292,166 @@ class _PagamentoPageState extends State<PagamentoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Página de Pagamento'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            _removerItensDoBanco();
-            Navigator.pop(context);
-          },
-        ),
+        title: const Text('Pagamento'),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Detalhes do Pedido',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Text('Número do Pedido: ${widget.pedido.id}'),
-              Text('Cliente: ${widget.pedido.cliente.nome}'),
-              Text('Vendedor: ${widget.pedido.vendedor.nome}'),
-              Text(
-                  'Forma de Pagamento: ${widget.pedido.formaPagamento.descricao}'),
-              const SizedBox(height: 20),
-              const Text(
-                'Carrinho de Produtos',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                constraints: const BoxConstraints(minHeight: 200),
-                child: FutureBuilder<List<ItensPedidoDTO>>(
-                  future: _futureItens,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Erro: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                          child: Text('Nenhum item encontrado.'));
-                    } else {
-                      return SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                final item = snapshot.data![index];
-                                return ListTile(
-                                  title: Text(item.produto?.nome ??
-                                      'Produto desconhecido'),
-                                  subtitle: Text(
-                                    'Quantidade: ${item.quantidade ?? 0}, Valor Total: R\$ ${_formatarValor(item.valorTotal ?? 0)}',
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () {
-                                          _editarProduto(item);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        onPressed: () {
-                                          _excluirProduto(item.produto!);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                controller: _descontoController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                    labelText: 'Desconto (%)'),
-                                onChanged: _recalcularValorTotalComDesconto,
+          child: FutureBuilder<List<ItensPedidoDTO>>(
+            future: _futureItens,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Text('Erro ao carregar itens do pedido');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('Nenhum item no pedido');
+              } else {
+                final itens = snapshot.data!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Produtos',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: itens.length,
+                      itemBuilder: (context, index) {
+                        final item = itens[index];
+                        return ListTile(
+                          title: Text(item.produto?.nome ?? 'Produto'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Quantidade: ${item.quantidade}'),
+                              Text(
+                                  'Valor Total: ${_formatarValor(item.valorTotal ?? 0)}'),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  _editarProduto(item);
+                                },
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                  'Valor Total: R\$ ${_formatarValor(_valorTotal)}'),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Valor Total com Desconto: R\$ ${_formatarValor(_valorTotalComDesconto)}',
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  if (item.produto != null) {
+                                    _excluirProduto(item.produto!);
+                                  }
+                                },
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                controller: _parcelasController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                    labelText: 'Número de Parcelas'),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                controller: _vencimentoController,
-                                decoration: const InputDecoration(
-                                    labelText: 'Data de Vencimento'),
-                                readOnly: true,
-                                onTap: () => _selectDate(context),
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                _gerarParcelas(_parcelasController.text,
-                                    _vencimentoController.text);
-                              },
-                              child: const Text('Gerar Parcelas'),
-                            ),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _parcelas.length,
-                              itemBuilder: (context, index) {
-                                final parcela = _parcelas[index];
-                                return ListTile(
-                                  title: Text(
-                                      'Parcela ${parcela['numero']} - Vencimento: ${parcela['vencimento']}'),
-                                  subtitle: Text(
-                                      'Valor: R\$ ${_formatarValor(parcela['valor'])}'),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _confirmarPagamento();
-                },
-                child: const Text('Confirmar Pagamento'),
-              ),
-            ],
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Resumo do Pedido',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Valor Total: ${_formatarValor(_valorTotal)}'),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _descontoController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Desconto (%)',
+                      ),
+                      onChanged: (value) {
+                        _recalcularValorTotalComDesconto(value);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                        'Valor Total com Desconto: ${_formatarValor(_valorTotalComDesconto)}'),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _parcelasController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Número de Parcelas',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _vencimentoController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Data de Vencimento',
+                        suffixIcon: Icon(Icons.calendar_today),
+                      ),
+                      onTap: () async {
+                        DateTime? selectedDate = await _selectDate(context);
+                        if (selectedDate != null) {
+                          _vencimentoController.text =
+                              DateFormat('yyyy-MM-dd').format(selectedDate);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _previewParcelas,
+                      child: const Text('Gerar Prévia de Parcelas'),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Parcelas',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _parcelas.length,
+                      itemBuilder: (context, index) {
+                        final parcela = _parcelas[index];
+                        return ListTile(
+                          title: Text(
+                              'Parcela ${parcela['numero']}: ${_formatarValor(parcela['valor'])}'),
+                          subtitle:
+                              Text('Vencimento: ${parcela['vencimento']}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              _selectDate(context).then((value) {
+                                if (value != null) {
+                                  setState(() {
+                                    parcela['vencimento'] =
+                                        DateFormat('yyyy-MM-dd').format(value);
+                                  });
+                                }
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _confirmarPagamento,
+                        child: const Text('Confirmar Pagamento'),
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
           ),
         ),
       ),

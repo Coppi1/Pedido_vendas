@@ -12,7 +12,8 @@ Future<void> initializeDatabase() async {
     'pedido',
     'categoria_produto',
     'itens_pedido',
-    'pagamento_pedido'
+    'pagamento_pedido',
+    'pagamento_parcela'
   ];
 
   for (String tableName in tableNames) {
@@ -93,16 +94,16 @@ Future<void> initializeDatabase() async {
   ''');
 
   await db.execute('''
-    CREATE TABLE pagamento_pedido (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      parcelas INTEGER,
-      valorTotal REAL,
-      desconto REAL,
-      dataVencimento TEXT,
-      pedidoId INTEGER,
-      FOREIGN KEY (pedidoId) REFERENCES pedido (id)
-    )
-  ''');
+  CREATE TABLE pagamento_pedido (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    parcelas INTEGER,
+    valorTotal REAL,
+    desconto REAL,
+    dataVencimento TEXT,
+    pedidoId INTEGER,
+    FOREIGN KEY (pedidoId) REFERENCES pedido (id)
+  )
+''');
 
   await db.execute('''
     CREATE TABLE pagamento_parcela (
@@ -111,8 +112,9 @@ Future<void> initializeDatabase() async {
       valor REAL,
       desconto REAL,
       dataVencimento TEXT,
-      pedidoId INTEGER,
-      FOREIGN KEY (pedidoId) REFERENCES pedido (id)
+      pagamentoId INTEGER,
+      FOREIGN KEY (pagamentoId) REFERENCES pagamento_pedido (id)
+    )
   ''');
 
   await db.insert('vendedor', {

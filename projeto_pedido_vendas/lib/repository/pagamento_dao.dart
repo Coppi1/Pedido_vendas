@@ -44,4 +44,18 @@ class PagamentoDAO {
       whereArgs: [pagamentoId],
     );
   }
+
+  Future<PagamentoDTO?> buscarPagamentoPorId(int pedidoId) async {
+    final db = await _db;
+    List<Map<String, dynamic>> maps = await db.query(
+      'pagamento_pedido',
+      where: 'pedidoId = ?',
+      whereArgs: [pedidoId],
+    );
+    if (maps.isNotEmpty) {
+      return PagamentoDTO.fromJson(maps.first);
+    } else {
+      return null;
+    }
+  }
 }
