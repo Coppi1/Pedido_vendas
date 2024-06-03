@@ -17,7 +17,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class PedidoProdutosPage extends StatefulWidget {
   final PedidoDTO pedido;
 
-  const PedidoProdutosPage({Key? key, required this.pedido}) : super(key: key);
+  const PedidoProdutosPage({super.key, required this.pedido});
 
   @override
   _PedidoProdutosPageState createState() => _PedidoProdutosPageState();
@@ -34,7 +34,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   final ItensPedidoDAO _itensPedidoDAO = ItensPedidoDAO();
   final TextEditingController _searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  Map<int, int> _quantidadesSelecionadas = {};
+  final Map<int, int> _quantidadesSelecionadas = {};
 
   @override
   void initState() {
@@ -171,7 +171,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MinhaAppBar(titulo: 'Carrinho de Produtos'),
+      appBar: const MinhaAppBar(titulo: 'Carrinho de Produtos'),
       drawer: const MenuLateralEsquerdo(),
       endDrawer: MenuLateralDireito(),
       body: SingleChildScrollView(
@@ -256,7 +256,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.8,
+                          childAspectRatio: 0.65,
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
                         ),
@@ -355,10 +355,9 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      elevation: 4.0,
+      elevation: 2.0,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             title: Text(
@@ -413,11 +412,11 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 7),
                 ElevatedButton.icon(
                   icon: const FaIcon(
                     FontAwesomeIcons.cartPlus,
-                    size: 16, // Ajuste de tamanho do ícone
+                    size: 13,
                   ),
                   onPressed: () => _adicionarProdutoAoCarrinho(produto),
                   label: const Text('Adicionar ao Carrinho'),
@@ -427,10 +426,9 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
                       horizontal: 10,
                     ),
                     textStyle: const TextStyle(
-                      fontSize: 12, // Ajuste de tamanho do texto
+                      fontSize: 10,
                     ),
-                    minimumSize:
-                        const Size(0, 24), // Ajuste de tamanho mínimo do botão
+                    minimumSize: const Size(0, 20),
                   ),
                 ),
               ],
@@ -456,7 +454,7 @@ class _PedidoProdutosPageState extends State<PedidoProdutosPage>
             children: [
               Text(_formatarValor(item.valorTotal ?? 0)),
               IconButton(
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 onPressed: () {
                   _removerItemDoCarrinho(index);
                 },
